@@ -1,0 +1,3 @@
+"0","# qqplot"
+"0","pdf(""output_figures/LEALCO-BEH_votINV_lmm_qqplot.pdf"")"
+"0","qqnorm(residuals(m_votINV))"

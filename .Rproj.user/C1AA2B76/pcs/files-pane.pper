@@ -3,7 +3,11 @@
         {
             "columnIndex": 2,
             "ascending": true
+        },
+        {
+            "columnIndex": 4,
+            "ascending": true
         }
     ],
-    "path": "F:/2024_Boux_LexicalAlignmentInConversation/LEALCO-BEH/B_analysis/B_statistical_evaluation"
+    "path": "F:/2024_Boux_LexicalAlignmentInConversation/LEALCO-BEH/B_analysis/B_statistical_evaluation/output_stats"
 }

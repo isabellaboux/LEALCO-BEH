@@ -1,0 +1,6 @@
+"0",""
+"0","# correlation"
+"0","corr <- cor.test(entrainment_data$entrainment_ACC, entrainment_data$entrainment_VOTinv)"
+"0","sink('output_stats/LEALCO-BEH_entrainment_correlation_invVOT.txt')"
+"0","print(corr)"
+"0","sink()"
