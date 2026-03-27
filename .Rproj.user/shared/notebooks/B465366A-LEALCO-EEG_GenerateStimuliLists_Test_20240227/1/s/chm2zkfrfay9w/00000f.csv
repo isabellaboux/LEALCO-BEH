@@ -1,0 +1,8 @@
+"0","# set working dir to script location"
+"0","#currentFolder <- dirname(rstudioapi::getSourceEditorContext()$path)"
+"0","#setwd(currentFolder)"
+"0","#getwd()"
+"0",""
+"0","# libraries"
+"0","library(tidyverse)"
+"0","library(writexl)"

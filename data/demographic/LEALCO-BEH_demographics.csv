@@ -1,0 +1,35 @@
+subjID;Alter;Geschlecht;Händigkeit;Sehvermögen;Hörvermögen;Störungen;Muttersprache/n;Mehrsprachig;Sprache_1;Alter_1;Sprache_2;Alter_2;Sprache_3;Alter_3;Sprache_4;Alter_4;Sprache_5;Alter_5;Sprache_6;Alter_6
+1;21;weiblich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;3;Französisch;11;Spanisch;15;Italienisch;21;;
+2;21;weiblich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;6;Französisch;11;;;;;;
+3;;männlich;rechtshänder;ja;ja;nein;Deutsch;ja;Deutsch;0;English;8;Spanisch;11;Chinesisch;21;;;;
+4;20;weiblich;linkshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;6;Französisch;14;;;;;;
+5;22;weiblich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;11;;;;;;;;
+6;22;männlich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;3;English;9;Latein;14;;;;;;
+7;27;männlich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;3;English;10;;;;;;;;
+8;21;weiblich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;Französisch;6;Französisch;6;Deutsche Gebärdensprache;20;;;;
+9;25;weiblich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;8;Französisch;11;Spanisch;13;;;;
+10;23;weiblich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;11;Latein;12;Spanisch;13;;;;
+11;n.a.;weiblich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;5;Latein;11;;;;;;
+12;20;weiblich;rechtshänder;ja;ja;nein;Deutsch, Bulgarisch;ja;Deutsch;0;Bulgarisch;0;Englisch;9;Französisch;13;;;;
+13;26;weiblich;rechtshänder;ja;ja;ja;Deutsch;nein;Deutsch;0;English;10;Latein;10;alt-griechisch;14;Japanisch;20;;
+14;23;männlich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;7;Französisch;11;Italienisch;16;Japanisch;18;Chinesisch;22
+15;20;weiblich;linkshänder;ja;ja;nein;Deutsch;ja;Deutsch;0;Türkisch ;0;;;;;;;;
+16;22;männlich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;8;Französisch;10;;;;;;
+17;22;weiblich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;7;Französisch;12;Spanisch;15;;;;
+18;22;männlich;linkshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;6;Französisch;13;;;;;;
+19;22;weiblich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;8;Französisch;12;;;;;;
+20;21;weiblich;rechtshänder;ja;ja;nein;n.a. (deutsch);nein;Deutsch;0;English;10;Französisch;13;;;;;;
+21;23;weiblich;rechtshänder;ja;ja;ja;deutsch;nein;Deutsch;0;English;7;Spanisch;14;Arabisch;22;;;;
+22;20;weiblich;rechtshänder;ja;ja;nein;Englisch, Serbisch;ja;Englisch;0;Serbisch;0;Vietnamesisch;0;Deutsch;9;Französisch;12;;
+23;n.a.;weiblich;rechtshänder;ja;ja;nein;Deutsch;nein;Deutsch;0;English;9;;;;;;;;
+24;27;männlich;rechtshänder;ja;ja;nein;deutsch;nein;Deutsch;0;English;8;Italienisch;24;;;;;;
+25;21;männlich;rechtshänder;ja;ja;nein;deutsch;nein;Deutsch;5;Französisch;18;Englisch;18;;;;;;
+26;19;weiblich;linkshänder;ja;ja;ja;Deutsch, Kurdisch;ja;Kurdisch;0;Deutsch;3;Englisch;6;Französisch;12;Spanisch;16;;
+27;20;weiblich;rechtshänder;ja;nein;nein;Deutsch;nein;Deutsch;3;English;11;;;;;;;;
+28;23;weiblich;rechtshänder;ja;ja;nein;Russisch;nein;Russisch;0;English;7;Deutsch;16;;;;;;
+29;20;weiblich;rechtshänder;ja;ja;nein;deutsch;nein;Deutsch;0;English;7;Französisch;12;;;;;;
+30;24;weiblich;rechtshänder;ja;ja;nein;deutsch;nein;Deutsch;0;English;11;Spanisch;17;Französisch;20;;;;
+31;24;männlich;rechtshänder;ja;ja;nein;deutsch;nein;Deutsch;0;English;8;Französisch;11;Spanisch;13;;;;
+32;19;weiblich;rechtshänder;ja;ja;nein;deutsch;nein;Deutsch;0;English;6;Französisch;10;;;;;;
+33;22;weiblich;rechtshänder;ja;ja;nein;deutsch;nein;Deutsch;0;English;5;Französisch;12;spanisch;14;;;;
+34;22;weiblich;rechtshänder;ja;ja;nein;deutsch;nein;Deutsch;0;English;9;Latein;12;spanisch;16;;;;

@@ -1,0 +1,6 @@
+"0","# make post-hoc with no correction (partner x block)"
+"0","emm_none_main <-emmeans(m_votINV@model, pairwise ~ SUBTLEX_frequency_log_cat, adjust = ""none"")"
+"2","NOTE: Results may be misleading due to involvement in interactions
+"
+"0","vot_ph_none_main <- as.data.frame(emm_none$contrasts)"
+"0","write.csv(vot_ph_none,""output_stats/LEALCO-BEH_untrained_votINV_ph_none_main.csv"", row.names = FALSE)"

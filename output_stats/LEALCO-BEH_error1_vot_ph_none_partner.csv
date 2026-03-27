@@ -1,0 +1,4 @@
+"partner_type","contrast","emmean","SE","df","lower.CL","upper.CL"
+"same",".",NA,NA,NA,NA,NA
+"different",".",0.000529918727196762,0.00017306097755061,16.871899660162,0.000164580688289569,0.000895256766103955
+".","same - different",NA,NA,NA,NA,NA

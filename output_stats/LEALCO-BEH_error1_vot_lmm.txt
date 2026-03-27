@@ -1,0 +1,69 @@
+Linear mixed model fit by REML
+(p-values based on Wald z-scores) ['lmerMod']
+Formula: VOTinv ~ 1 + block + c_FASQUEL_image_agreement + partner_type +  
+    block:c_FASQUEL_image_agreement + c_FASQUEL_image_agreement:partner_type +  
+    c_FASQUEL_concreteness + block:c_FASQUEL_concreteness + c_FASQUEL_image_agreement:c_FASQUEL_concreteness +  
+    partner_type:c_FASQUEL_concreteness + block:c_FASQUEL_image_agreement:c_FASQUEL_concreteness +  
+    block:partner_type + block:c_FASQUEL_image_agreement:partner_type +      c_FASQUEL_image_agreement:partner_type:c_FASQUEL_concreteness +  
+    c_SUBTLEX_frequency_log + c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log +  
+    block:c_SUBTLEX_frequency_log + block:c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log +  
+    c_FASQUEL_concreteness:c_SUBTLEX_frequency_log + block:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
+    c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
+    block:c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
+    partner_type:c_SUBTLEX_frequency_log + block:partner_type:c_SUBTLEX_frequency_log +  
+    block:partner_type:c_FASQUEL_concreteness + c_FASQUEL_image_agreement:partner_type:c_SUBTLEX_frequency_log +  
+    partner_type:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +      block:c_FASQUEL_image_agreement:partner_type:c_FASQUEL_concreteness +  
+    block:c_FASQUEL_image_agreement:partner_type:c_SUBTLEX_frequency_log +  
+    block:partner_type:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
+    c_FASQUEL_image_agreement:partner_type:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
+    block:c_FASQUEL_image_agreement:partner_type:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +      (1 | subjID)
+   Data: error1_votINV
+Control: structure(list(optimizer = "bobyqa", restart_edge = TRUE, boundary.tol = 1e-05,  
+    calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(         check.nobs.vs.rankZ = "ignore", check.nobs.vs.nlev = "stop",  
+        check.nlev.gtreq.5 = "ignore", check.nlev.gtr.1 = "stop",          check.nobs.vs.nRE = "stop", check.rankX = "message+drop.cols",  
+        check.scaleX = "warning", check.formula.LHS = "stop"),      checkConv = list(check.conv.grad = list(action = "warning",  
+        tol = 0.002, relTol = NULL), check.conv.singular = list(         action = "message", tol = 1e-04), check.conv.hess = list( 
+        action = "warning", tol = 1e-06)), optCtrl = list()), class = c("lmerControl",  "merControl"))
+
+REML criterion at convergence: -266.1
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-1.2685 -0.3602  0.0000  0.2849  1.2370 
+
+Random effects:
+ Groups   Name        Variance  Std.Dev. 
+ subjID   (Intercept) 1.751e-08 0.0001323
+ Residual             6.280e-08 0.0002506
+Number of obs: 44, groups:  subjID, 18
+
+Fixed effects:
+                                                                                  Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                                                                      5.104e-04  1.323e-04   3.858 0.000114 ***
+block1                                                                           6.006e-05  1.199e-04   0.501 0.616386    
+c_FASQUEL_image_agreement                                                        4.686e-04  5.260e-04   0.891 0.373009    
+partner_type1                                                                    3.562e-05  9.132e-05   0.390 0.696497    
+c_FASQUEL_concreteness                                                           2.631e-04  6.980e-04   0.377 0.706245    
+c_SUBTLEX_frequency_log                                                          9.883e-05  2.530e-04   0.391 0.696045    
+block1:c_FASQUEL_image_agreement                                                 6.251e-05  5.592e-04   0.112 0.910998    
+c_FASQUEL_image_agreement:partner_type1                                         -4.267e-04  5.499e-04  -0.776 0.437698    
+block1:c_FASQUEL_concreteness                                                   -7.741e-04  8.199e-04  -0.944 0.345100    
+c_FASQUEL_image_agreement:c_FASQUEL_concreteness                                 1.546e-03  2.402e-03   0.644 0.519717    
+partner_type1:c_FASQUEL_concreteness                                            -2.844e-04  7.435e-04  -0.382 0.702107    
+block1:partner_type1                                                            -4.397e-05  6.874e-05  -0.640 0.522347    
+c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log                               -1.985e-04  1.448e-03  -0.137 0.890909    
+block1:c_SUBTLEX_frequency_log                                                  -3.251e-04  2.766e-04  -1.175 0.239889    
+c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                                   1.959e-03  2.063e-03   0.950 0.342325    
+partner_type1:c_SUBTLEX_frequency_log                                           -5.804e-05  2.428e-04  -0.239 0.811054    
+block1:c_FASQUEL_image_agreement:c_FASQUEL_concreteness                         -3.748e-03  2.889e-03  -1.297 0.194583    
+block1:c_FASQUEL_image_agreement:partner_type1                                   2.725e-04  5.362e-04   0.508 0.611285    
+c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness                  -2.039e-03  2.654e-03  -0.768 0.442197    
+block1:c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log                         1.849e-03  1.459e-03   1.268 0.204862    
+block1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                           -2.952e-03  2.104e-03  -1.403 0.160566    
+c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log         6.943e-03  5.175e-03   1.342 0.179670    
+block1:partner_type1:c_SUBTLEX_frequency_log                                     7.250e-05  2.199e-04   0.330 0.741626    
+block1:c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log -6.171e-03  5.332e-03  -1.157 0.247146    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+fit warnings:
+fixed-effect model matrix is rank deficient so dropping 8 columns / coefficients

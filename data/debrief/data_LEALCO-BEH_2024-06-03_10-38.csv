@@ -1,0 +1,35 @@
+CASE	SERIAL	REF	QUESTNNR	MODE	STARTED	B101	B201	H101	H201	K101_01	N101	N201	S101	S201	T101	T201	V201_01	TIME001	TIME002	TIME_SUM	MAILSENT	LASTDATA	FINISHED	Q_VIEWER	LASTPAGE	MAXPAGE	MISSING	MISSREL	TIME_RSI
+17			base	interview	08.04.2024 17:33	5	1	5	1		1	4	5	4	5	5	001	6	33	39		08.04.2024 17:33	1	0	2	2	8	6	1.82
+18			base	interview	09.04.2024 16:55	1	1	1	1	Beide waren sehr nett und es lief sehr einfach	2	4	5	5	5	5	002	17	92	109		09.04.2024 16:56	1	0	2	2	0	0	0.65
+19			base	interview	10.04.2024 10:09	2	5	1	5		2	5	4	4	5	4	003	54	105	115		10.04.2024 10:11	1	0	2	2	8	6	0.4
+20			base	interview	10.04.2024 13:21	1	2	1	2		2	5	5	5	5	5	004	9	68	77		10.04.2024 13:23	1	0	2	2	8	6	1.03
+21			base	interview	15.04.2024 15:08	3	1	3	1		1	2	5	3	4	4	005	14	72	86		15.04.2024 15:09	1	0	2	2	8	6	0.81
+22			base	interview	15.04.2024 16:20	4	1	5	1		1	3	5	3	5	3	006	10	42	52		15.04.2024 16:21	1	0	2	2	8	6	1.27
+23			base	interview	24.04.2024 09:58	1	1	1	1		2	4	5	5	4	4	007	15	45	60		24.04.2024 09:59	1	0	2	2	8	6	1.06
+24			base	interview	25.04.2024 15:22	1	1	1	1		1	4	4	4	5	4	008	4	28	32		25.04.2024 15:22	1	0	2	2	8	6	2.41
+25			base	interview	25.04.2024 17:08	1	2	1	2		3	4	3	4	4	5	009	19	38	57		25.04.2024 17:09	1	0	2	2	8	6	1.12
+27			base	interview	30.04.2024 18:21	3	2	3	2		2	4	4	4	4	4	010	10	59	69		30.04.2024 18:22	1	0	2	2	8	6	1.05
+28			base	interview	01.05.2024 08:56	2	1	2	1		4	2	4	5	4	5	011	15	58	73		01.05.2024 08:57	1	0	2	2	8	6	0.89
+29			base	interview	01.05.2024 10:29	1	1	1	1		2	5	4	5	4	5	012	9	59	68		01.05.2024 10:30	1	0	2	2	8	6	1.11
+30			base	interview	01.05.2024 11:47	1	1	1	1		2	4	5	5	5	5	013	15	129	144		01.05.2024 11:50	1	0	2	2	8	6	0.59
+32			base	interview	07.05.2024 11:02	1	1	1	1	Keine Vorschläge, interaktion war sehr einfach und natürlich	1	5	5	4	5	5	014	7	70	77		07.05.2024 11:04	1	0	2	2	0	0	1.18
+33			base	interview	07.05.2024 12:45	1	1	1	1	Die Instruktionen wurden deutlich erklärt:)	1	5	5	5	5	5	015	7	83	90		07.05.2024 12:46	1	0	2	2	0	0	1.11
+34			base	interview	08.05.2024 08:41	4	1	4	1	Gute Studie	1	5	5	5	5	5	016	13	103	116		08.05.2024 08:43	1	0	2	2	0	0	0.7
+35			base	interview	08.05.2024 09:56	3	2	3	2	Nein	3	3	4	3	4	3	017	18	76	94		08.05.2024 09:58	1	0	2	2	0	0	0.71
+36			base	interview	09.05.2024 09:37	5	2	5	2	Das eine Bild ist kein Wolf - sorry 	1	4	5	5	5	5	018	18	278	83		09.05.2024 09:42	1	0	2	2	0	0	0.39
+37			base	interview	09.05.2024 10:36	1	1	2	1	Die Interaktion war sehr angenhem, hab soweit keine Verbesserungsvorschläge	2	4	5	5	4	4	019	10	126	136		09.05.2024 10:39	1	0	2	2	0	0	0.76
+38			base	interview	09.05.2024 14:05	5	1	5	1	nein	1	5	5	5	5	5	020	6	66	72		09.05.2024 14:06	1	0	2	2	0	0	1.33
+39			base	interview	09.05.2024 14:59	1	1	1	1	War alles gut!	2	4	5	5	5	5	021	6	36	42		09.05.2024 15:00	1	0	2	2	0	0	1.74
+40			base	interview	13.05.2024 16:52	1	1	1	1	Sehr angenehm 	2	5	5	4	5	5	022	13	100	113		13.05.2024 16:54	1	0	2	2	0	0	0.71
+41			base	interview	13.05.2024 17:50	3	1	2	1	Nö	2	5	5	4	4	5	023	8	62	70		13.05.2024 17:51	1	0	2	2	0	0	1.15
+42			base	interview	13.05.2024 18:36	1	1	1	1	Nein :)	2	4	3	3	4	4	024	6	105	111		13.05.2024 18:38	1	0	2	2	0	0	1.14
+43			base	interview	14.05.2024 17:15	3	2	3	2	/	1	5	4	4	4	5	025	14	50	64		14.05.2024 17:17	1	0	2	2	0	0	1.01
+44			base	interview	14.05.2024 18:23	1	1	1	1	Nein <3	1	4	5	5	5	5	026	10	48	58		14.05.2024 18:24	1	0	2	2	0	0	1.18
+45			base	interview	14.05.2024 19:12	1	1	1	1	Nein	2	5	5	5	4	5	027	24	57	81		14.05.2024 19:13	1	0	2	2	0	0	0.78
+46			base	interview	15.05.2024 10:21	1	1	1	1	Interaktion und Experiment waren echt geil 	1	5	5	5	5	5	028	10	77	87		15.05.2024 10:23	1	0	2	2	0	0	0.92
+47			base	interview	28.05.2024 18:37	1	1	1	1	die Bilder waren relativ eindeutig und es musste nicht viel interagiert werden	2	4	5	5	5	5	029	22	155	177		28.05.2024 18:40	1	0	2	2	0	0	0.44
+48			base	interview	29.05.2024 09:08	4	1	5	1	Nö	1	2	4	3	2	4	030	36	64	74		29.05.2024 09:10	1	0	2	2	0	0	0.65
+50			base	interview	29.05.2024 09:55	2	1	1	1	Alles sehr gut	2	4	5	5	5	5	031	10	56	66		29.05.2024 09:56	1	0	2	2	0	0	1.08
+51			base	interview	30.05.2024 11:09	1	1	1	1	alles supi :)	1	5	5	4	5	4	032	9	58	67		30.05.2024 11:10	1	0	2	2	0	0	1.12
+52			base	interview	30.05.2024 14:02	2	1	2	1	Müssen es immer die gleichen Begriffe sein in der ersten Aufgabe (Partner A/B erklärt die Figur)?	4	2	4	3	3	3	033	4	126	130		30.05.2024 14:04	1	0	2	2	0	0	1.51
+53			base	interview	30.05.2024 14:57	2	1	2	2	Nein 	2	4	4	4	4	4	034	8	42	50		30.05.2024 14:58	1	0	2	2	0	0	1.4

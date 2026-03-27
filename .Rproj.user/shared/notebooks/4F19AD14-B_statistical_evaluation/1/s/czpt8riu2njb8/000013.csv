@@ -1,0 +1,6 @@
+"0","# plot accuracy counts by subject"
+"0","pdf(""output_figures/LEALCO-BEH_raw screening.pdf"")"
+"0","p <- ggplot(data, aes(x=error, fill=error)) + "
+"0","  geom_bar() +"
+"0","  facet_wrap(~subjID)"
+"0","p"

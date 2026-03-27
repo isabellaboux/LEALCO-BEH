@@ -1,0 +1,3 @@
+"0","data_trained <- data %>%"
+"0","  filter(class == 'test item') %>%"
+"0","  filter(error %in% c('correct', '1', '2', '3', '4'))"

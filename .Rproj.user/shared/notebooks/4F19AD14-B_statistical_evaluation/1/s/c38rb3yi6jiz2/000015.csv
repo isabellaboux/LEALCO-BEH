@@ -1,0 +1,4 @@
+"0",""
+"0","# plot square root normalized VOTs"
+"0","data$VOTsqrt <- sqrt(data$VOT)"
+"0","hist(data$VOTsqrt, breaks=500)"

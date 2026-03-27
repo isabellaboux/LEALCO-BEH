@@ -1,0 +1,8 @@
+"0","#dev.off()"
+"0",""
+"0","a <- ggplot(vot_wItem, aes(y=mean, x=logFrequency, color=block)) + "
+"0","  geom_point() +"
+"0","  stat_smooth(method = ""lm"", "
+"0","              formula = y ~ x, "
+"0","              geom = ""smooth"") "
+"0","a"

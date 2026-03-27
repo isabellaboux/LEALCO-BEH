@@ -1,0 +1,6 @@
+"0","  stimuli$group = NA"
+"0","  stimuli$position = NA"
+"0","  stimuli$group <- as_factor(stimuli$group)"
+"0","  stimuli$position <- as_factor(stimuli$position)"
+"0","  levels(stimuli$group) <- c('1','2', '3', '4', '5', '6', '7')"
+"0","  levels(stimuli$position) <- c('1','2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16')"

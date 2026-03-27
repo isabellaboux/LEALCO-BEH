@@ -1,0 +1,19 @@
+"0","# load stimuli"
+"0","conditions <- read_delim(""LEALCO-EEG_conditions_list.csv"", delim="";"")"
+"1","[1mRows: [22m[34m48[39m [1mColumns: [22m[34m5[39m
+"
+"1","[36m──[39m [1mColumn specification[22m [36m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "";""
+[31mchr[39m (1): order_partner
+[32mdbl[39m (4): subjID, team, key_untrained, key_trained
+"
+"1","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message.
+"
+"0","# make certain columns factors"
+"0","conditions$subjID  <- as_factor(conditions$subjID)"
+"0","conditions$team  <- as_factor(conditions$team)"
+"0","conditions$order_partner  <- as_factor(conditions$order_partner )"
+"0","conditions$key_untrained  <- as_factor(conditions$key_untrained )"
+"0","conditions$key_trained <- as_factor(conditions$key_trained)"

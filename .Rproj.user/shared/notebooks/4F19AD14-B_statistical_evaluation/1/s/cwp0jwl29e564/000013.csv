@@ -1,0 +1,6 @@
+"0","# find median"
+"0","med <- median(data_untrained$FASQUEL_image_agreement)"
+"0",""
+"0","# make median split"
+"0"," data_untrained$FASQUEL_image_agreement_cat <- ifelse(data_untrained$FASQUEL_image_agreement < med, 'LIA', 'HIA')"
+"0"," data_untrained$FASQUEL_image_agreement_cat <- as_factor( data_untrained$FASQUEL_image_agreement_cat)"

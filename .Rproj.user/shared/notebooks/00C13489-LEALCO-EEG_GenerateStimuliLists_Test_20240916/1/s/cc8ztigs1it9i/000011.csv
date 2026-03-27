@@ -1,0 +1,15 @@
+"0","# load stimuli"
+"0","stimuli <- read_delim(""LEALCO-EEG_Stimuli_final.csv"", delim="";"")"
+"1","[1mRows: [22m[34m84[39m [1mColumns: [22m[34m26[39m
+"
+"1","[36m──[39m [1mColumn specification[22m [36m───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "";""
+[31mchr[39m  (6): class, stimCODE, label, SUBTLEX_frequency_log_cat, DLEXDB_pos_tag, list
+[32mdbl[39m (20): trigger_item, FASQUEL_agreement_paper, FASQUEL_agreement_osf, FASQUEL_h, FASQUEL_image_agreement, FASQUEL_familiarity, FASQUEL_visual...
+"
+"1","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message.
+"
+"0","# determine the file name for each stimulus"
+"0","stimuli$file <-  paste0('resized_', stimuli$stimCODE, '.png')"

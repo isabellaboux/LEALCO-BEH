@@ -1,0 +1,112 @@
+---
+title: "B_merge"
+---
+
+# LEALCO-BEH: merge all data *from test task*
+
+### Goal
+
+Generate one file containing all the relevant data from the test task of the LEALCO-BEH study.
+
+### Inputs
+
+-   the **PsychoPy input files** containing information about the presented stimuli and conditions
+
+-   the **demographics**;the table containing (by subject) information about age, language spoken and other demographics
+
+-   the **debriefing**: make sure that the column containing hte subjID does not contrin the apostrophe
+
+-   the **VOT files**: this file contains informatoon about naming latencies, accuracy, and type of errors committed. [Note]{.underline}: these files need to be freed of the BOM. As some files (for unexplained reasons) still have, it should first be removed "manually" by opening the files in Notepad++ \>Encoding \> UTF-8\>Save. These files are easy to spot because they are heavier than the ones encoded in UTF-8.
+
+### Output
+
+The output file is a large .csv table containing the entire data of the file in a long format. It puts together the PsychoPy input files, the demographics, the VOT files as well as the relevant information from the debriefing questionnaire.
+
+## Load packages
+
+```{r}
+library(dplyr)
+library(tidyverse)
+```
+
+## Define which files to read
+
+```{r}
+subjList <- c('001', '002', '003', '004', '005', '006', '007', '008', '009', '010',
+              '011', '012', '013', '014', '015', '016', '017', '018', '019', '020',
+              '021', '022', '023', '024', '025', '026', '027', '028', '029', '030',
+              '031', '032', '033', '034')
+partnerList <- c('A', 'B')
+blockList <- c('1', '2')
+```
+
+## Read files
+
+```{r}
+
+# ============== initialize empty df to be filled with all data from all subjects
+data <- data.frame()
+
+# ============== loop over files
+for (i_subjList in subjList) {
+  for (i_blockList in blockList) {
+    for (i_partnerList in partnerList) {
+      
+      # ================ define input files
+      IV_filename <- sprintf('data/conditions/LEALCO-BEH_Behavioral_%s_test_block%s_partner%s.csv', i_subjList, i_blockList, i_partnerList)
+      demo_filename <- 'data/demographic/LEALCO-BEH_demographics.csv'
+      VOT_filename <- sprintf('data/VOTandACC/%s_test_block%s_partner%s_final_VOTs.csv',i_subjList, i_blockList, i_partnerList) 
+      debri_filename <- 'data/debrief/data_LEALCO-BEH_2024-06-03_10-38.csv'
+      
+      # ================ read files
+      IV <- read.csv(IV_filename)
+      demo <- read.csv(demo_filename, sep = ";", fileEncoding = "Latin1", check.names = F)
+      VOT <- read.csv(VOT_filename, sep = ",", fileEncoding = "Latin1", check.names = F)
+      debri <- read.csv(debri_filename, sep = "\t", fileEncoding="Latin1", check.names = F)
+      #IV <- read.csv('data/conditions/LEALCO-BEH_Behavioral_001_test_block1_partnerA.csv')
+      #demo <- read.csv('data/demographic/LEALCO-BEH_demographics.csv', sep = ";", fileEncoding = "Latin1", check.names = F)
+      #VOT <- read.csv('data/VOTandACC/001_test_block1_partnerA_final_VOTs.csv', sep = ",", fileEncoding = "Latin1", check.names = F)
+      #debri <- read.csv('data/debrief/data_LEALCO-BEH_2024-05-14_16-48.csv', sep = "\t", fileEncoding="Latin1", check.names = F)
+      
+      # ================ clean up data
+      # remove lats row from condition file
+      IV <- IV[-c(43),]
+      
+      # rename some variables fo facilitate later joining of dataframes
+      colnames(demo)[1] <- "subjID"
+      colnames(debri)[18] <- "subjID"
+      
+      # ================= make into factors
+      IV$subjID <- as_factor(as.integer(IV$subjID))
+      demo$subjID <- as_factor(demo$subjID)
+      debri$subjID <- as_factor(as.integer(debri$subjID))
+      
+      # =============== Put together the data stepwise in one file (by subject, partner & block)
+      # merge condition file with relevant variables of the VOT file
+      a <- bind_cols(IV, select(VOT, VOT, correct, AR, error))
+      # add  variables from the dmographic questionnaire
+      b <- left_join(a, demo, by='subjID')
+      # add  only relevant variables from the debriefing questionnaire
+      current <- left_join(b, select(debri, subjID, B101, B201, H101, H201, K101_01, N101, N201, S101, S201, T101, T201), by='subjID')
+      
+      # ============ append to dataframe
+      data <- rbind(data, current)
+      
+      
+    } #  end of partnerList
+  } #  end of blockList
+} #  end of subjList
+```
+
+```{r}
+ data$error[is.na(data$error)] = 'correct'
+
+```
+
+## Save
+
+```{r}
+write.csv(data, 'data/LEALCO-BEH_test_merged_data.csv', row.names=FALSE, fileEncoding = "UTF-8")
+```
+
+## 
