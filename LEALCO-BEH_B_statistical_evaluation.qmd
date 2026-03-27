@@ -998,6 +998,8 @@ tt
 
 ## Entrainment analysis
 
+#### Version 1 (inverted Naming Latencies)
+
 The following analysis examines the reaction between Label Maintenance and (inverted) Naming Latency. This is interesting because there could be a speed accuracy trade-off (i.e. entraining with the partner is cognitively costly) or on the contrary it is possible that entraining with the partner is in fact facilitatory.
 
 ```{r}
@@ -1040,12 +1042,12 @@ s <- ggplot(entrainment_data, aes(x=entrainment_VOTinv, y=entrainment_ACC)) +
   xlab('Entrainment NL\n(same vs. different)') +
   ylab('Entrainment LM\n(same vs. different)') +
     theme(axis.text=element_text(size=12), axis.title=element_text(size=16))
-ggsave("output_figures/LEALCO-BEH_entrainment_correlation.pdf", width=6, height=3.5)
+ggsave("output_figures/LEALCO-BEH_entrainment_correlation_invVOT.pdf", width=6, height=3.5)
 s
 
 # correlation
 corr <- cor.test(entrainment_data$entrainment_ACC, entrainment_data$entrainment_VOTinv)
-sink('output_stats/LEALCO-BEH_entrainment_correlation.txt')
+sink('output_stats/LEALCO-BEH_entrainment_correlation_invVOT.txt')
 print(corr)
 sink()
 ```
@@ -1060,12 +1062,12 @@ p3<- ggplot(entrainment_data, aes(x=mean_VOTinv_same, y=mean_ACC_same)) +
      xlab('Naming Latencies (inverted)') +
      ylab('Label Maintenance') 
  p3
- ggsave("output_figures/LEALCO-BEH_correlation_behavioral.pdf")
+ ggsave("output_figures/LEALCO-BEH_correlation_behavioral_invVOT.pdf")
  
 # make separate correlations for same and differet
 cor_same <- cor.test(entrainment_data$mean_VOTinv_same, entrainment_data$mean_ACC_same)
 cor_diff <- cor.test(entrainment_data$mean_VOTinv_different, entrainment_data$mean_ACC_different)
-sink('output_stats/LEALCO-BEH_correlation_behavior.txt')
+sink('output_stats/LEALCO-BEH_correlation_behavior_invVOT.txt')
 print(cor_same)
 print(cor_diff)
 sink()
@@ -1073,6 +1075,85 @@ print(cor_same)
 print(cor_diff)
  
 #cocor(~ mean_VOTinv_same + mean_ACC_same | mean_VOTinv_different + mean_ACC_different, data = entrainment_data, test = c("silver2004", "zou2007"))
+```
+
+#### Version 2 (raw Naming Latencies)
+
+Identical to the above [BUT WITHOUT THE SCALING FACTOR]{.underline}, which was required for the prior analysis due to the inversion resulting in very small values.
+
+```{r}
+# aggregte accuracy (within subject)
+acc_wSubj_partner <- data_trained %>%
+  filter(!subjID %in%  exclusion_acc) %>%
+  group_by(subjID, partner_type) %>%
+  summarise(mean_ACC = mean(correct), sd_ACC=sd(correct), sem_ACC=(sd(correct)/sqrt((length(correct)))), n_ACC=length(correct))
+
+# aggregate VOTinv (within subjects) only for correct trials
+vot_wSubj_partner <- data_trained %>%
+  filter(correct == 1) %>%
+  filter(!subjID %in%  exclusion_vot) %>%
+  group_by(subjID, partner_type) %>%
+  summarise(mean_VOT = mean(VOT), sd_VOT=sd(VOT), sem_VOT=(sd(VOT)/sqrt((length(VOT)))), n_VOT=length(VOT))
+
+# merge the two DVs in one dataframe
+entrainment_data <- merge(acc_wSubj_partner,vot_wSubj_partner,by=c("subjID","partner_type"))
+
+# pivot from long to wide
+entrainment_data <- entrainment_data %>% 
+  pivot_wider(
+    names_from = partner_type, 
+    values_from = c(mean_ACC, sd_ACC, sem_ACC, n_ACC, mean_VOT, sd_VOT, sem_VOT, n_VOT)
+  )
+
+# calculate entrainment scores (same - different)
+entrainment_data$entrainment_ACC <- entrainment_data$mean_ACC_same - entrainment_data$mean_ACC_different
+entrainment_data$entrainment_VOT <- (entrainment_data$mean_VOT_same - entrainment_data$mean_VOT_different)
+
+# scatterplot
+s <- ggplot(entrainment_data, aes(x=entrainment_VOT, y=entrainment_ACC)) +
+  geom_point() +
+  stat_smooth(method=lm, fullrange=TRUE, color = 'black') + 
+  geom_hline(yintercept=0, linetype="dotted") +
+  geom_vline(xintercept=0, linetype="dotted") +
+  #xlim(-2.5, 2.5) +
+  ylim(-0.5, 0.5) + 
+  #xlab('<- faster for different                                                              faster for same ->\n\nSpeed advantage\n(same - different)') +
+  xlab('Entrainment NL\n(same vs. different)') +
+  ylab('Entrainment LM\n(same vs. different)') +
+    theme(axis.text=element_text(size=12), axis.title=element_text(size=16))
+ggsave("output_figures/LEALCO-BEH_entrainment_correlation_rawVOT.pdf", width=6, height=3.5)
+s
+
+# correlation
+corr <- cor.test(entrainment_data$entrainment_ACC, entrainment_data$entrainment_VOT)
+sink('output_stats/LEALCO-BEH_entrainment_correlation_rawVOT.txt')
+print(corr)
+sink()
+```
+
+```{r}
+# Plot the correlation
+p3<- ggplot(entrainment_data, aes(x=mean_VOT_same, y=mean_ACC_same)) +
+     geom_point(color=pal1[1]) +
+     geom_smooth(method=lm , color=pal1[1], se=FALSE) +
+     geom_point(aes(x=mean_VOT_different, y=mean_ACC_different), color=pal1[2]) +
+     geom_smooth(aes(x=mean_VOT_different, y=mean_ACC_different), method=lm , color=pal1[2], se=FALSE) +
+     xlab('Naming Latencies (raw)') +
+     ylab('Label Maintenance') 
+ p3
+ ggsave("output_figures/LEALCO-BEH_correlation_behavioral_rawVOT.pdf")
+ 
+# make separate correlations for same and differet
+cor_same <- cor.test(entrainment_data$mean_VOT_same, entrainment_data$mean_ACC_same)
+cor_diff <- cor.test(entrainment_data$mean_VOT_different, entrainment_data$mean_ACC_different)
+sink('output_stats/LEALCO-BEH_correlation_behavior_rawVOT.txt')
+print(cor_same)
+print(cor_diff)
+sink()
+print(cor_same)
+print(cor_diff)
+ 
+#cocor(~ mean_VOT_same + mean_ACC_same | mean_VOT_different + mean_ACC_different, data = entrainment_data, test = c("silver2004", "zou2007"))
 ```
 
 ## Accuracy at inaccurate trials
