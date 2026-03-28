@@ -24,6 +24,8 @@ library(buildmer)
 library(emmeans)
 library(lmerTest)
 library(gridExtra)
+library(sjPlot)
+source("R/utils.R")
 ```
 
 # Set some custom settings
@@ -631,6 +633,7 @@ sink("output_stats/LEALCO-BEH_acc_lmm.txt")
 print(summary(m_acc))
 sink()  # returns output to the console
 
+save_model_to_html_acc(m_acc@model, "LEALCO-BEH")
 ```
 
 Make usual sanity checks for the winning model.
@@ -879,6 +882,8 @@ summary(m_votINV)
 sink("output_stats/LEALCO-BEH_votINV_lmm.txt")
 print(summary(m_votINV))
 sink()  # returns output to the console
+
+save_model_to_html_VOTinv(m_votINV@model, 'LEALCO-BEH')
 ```
 
 Make model sanity checks. Everything seems ok.
