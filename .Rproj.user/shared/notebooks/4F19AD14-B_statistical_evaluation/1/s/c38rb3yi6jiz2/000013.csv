@@ -1,4 +1,0 @@
-"0",""
-"0","# plot inverse normalized VOTs"
-"0","data$VOTinv <- 1/data$VOT"
-"0","hist(data$VOTinv, breaks=500)"

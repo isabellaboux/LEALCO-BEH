@@ -1,2 +1,0 @@
-"0",""
-"0","data_untrained <- data[data$class == 'untrained',]"

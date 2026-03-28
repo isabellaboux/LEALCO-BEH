@@ -1,4 +1,0 @@
-"0","p <- emmip(m_votINV@model, SUBTLEX_frequency_log_cat ~ block ~ c_FASQUEL_image_agreement, cov.reduce = range)"
-"2","NOTE: Results may be misleading due to involvement in interactions
-"
-"0","p"

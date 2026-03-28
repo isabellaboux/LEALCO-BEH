@@ -1115,7 +1115,7 @@ s <- ggplot(entrainment_data, aes(x=entrainment_VOT, y=entrainment_ACC)) +
   stat_smooth(method=lm, fullrange=TRUE, color = 'black') + 
   geom_hline(yintercept=0, linetype="dotted") +
   geom_vline(xintercept=0, linetype="dotted") +
-  #xlim(-2.5, 2.5) +
+  xlim(-1600, 1600) +
   ylim(-0.5, 0.5) + 
   #xlab('<- faster for different                                                              faster for same ->\n\nSpeed advantage\n(same - different)') +
   xlab('Entrainment NL\n(same vs. different)') +

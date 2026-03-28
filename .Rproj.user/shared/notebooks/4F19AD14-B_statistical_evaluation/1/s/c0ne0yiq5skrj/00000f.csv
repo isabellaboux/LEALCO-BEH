@@ -1,5 +1,0 @@
-"0","# make dummy coding"
-"0","data_trained$error_1 <- ifelse(data_trained$error == 1, 1, 0)"
-"0","data_trained$error_2 <- ifelse(data_trained$error == 2, 1, 0)"
-"0","data_trained$error_3 <- ifelse(data_trained$error == 3, 1, 0)"
-"0","data_trained$error_4 <- ifelse(data_trained$error == 4, 1, 0)"

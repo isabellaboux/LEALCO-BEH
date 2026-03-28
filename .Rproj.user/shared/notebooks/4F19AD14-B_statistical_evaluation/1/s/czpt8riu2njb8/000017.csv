@@ -1,3 +1,0 @@
-"0",""
-"0","# count how many trials of each type"
-"0","data %>% count(error) "

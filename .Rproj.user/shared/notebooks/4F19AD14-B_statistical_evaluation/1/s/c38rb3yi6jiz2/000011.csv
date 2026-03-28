@@ -1,4 +1,0 @@
-"0",""
-"0","# plot log10 notmalized VOTs"
-"0","data$VOTlog10 <- log10(data$VOT)"
-"0","hist(data$VOTlog10, breaks=500)"

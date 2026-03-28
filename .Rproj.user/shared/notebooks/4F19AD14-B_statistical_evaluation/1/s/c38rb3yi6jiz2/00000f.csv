@@ -1,3 +1,0 @@
-"0",""
-"0","# plot native VOTs"
-"0","hist(data$VOT, breaks=500)"
