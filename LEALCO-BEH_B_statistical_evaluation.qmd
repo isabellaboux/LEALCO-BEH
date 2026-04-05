@@ -633,7 +633,7 @@ sink("output_stats/LEALCO-BEH_acc_lmm.txt")
 print(summary(m_acc))
 sink()  # returns output to the console
 
-save_model_to_html_acc(m_acc@model, "LEALCO-BEH")
+save_model_to_html(m_acc@model, 3,  "LEALCO-BEH_acc_lmm.html")
 ```
 
 Make usual sanity checks for the winning model.
@@ -883,7 +883,7 @@ sink("output_stats/LEALCO-BEH_votINV_lmm.txt")
 print(summary(m_votINV))
 sink()  # returns output to the console
 
-save_model_to_html_VOTinv(m_votINV@model, 'LEALCO-BEH')
+save_model_to_html(m_votINV@model, 6, 'LEALCO-BEH_votINV_lmm.html')
 ```
 
 Make model sanity checks. Everything seems ok.
