@@ -1,3 +1,0 @@
-"0",""
-"0","# zooming into the left part of the histogramm to spot anomalous VOTs (<400 ms), and export them."
-"0","hist(data$VOT, xlim=c(0, 1000), breaks = 1000)"

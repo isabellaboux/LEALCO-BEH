@@ -1,8 +1,0 @@
-"0","# indicate the maximal effect srucutre (both fixend and rendom) that is motivated based on design & hypotheses"
-"0","f <- correct ~ partner_type*block*c_SUBTLEX_frequency_log * c_FASQUEL_image_agreement * c_FASQUEL_concreteness +"
-"0","     (partner_type*block*c_SUBTLEX_frequency_log * c_FASQUEL_image_agreement * c_FASQUEL_concreteness | subjID) +"
-"0","     (partner_type*block | target_label)"
-"0",""
-"0","# select the maximal model that still converges"
-"0","m_acc <- buildmer(f,family=binomial, data=acc,buildmerControl=buildmerControl(direction='order',"
-"0","          args=list(control=lmerControl(optimizer='bobyqa'))))"

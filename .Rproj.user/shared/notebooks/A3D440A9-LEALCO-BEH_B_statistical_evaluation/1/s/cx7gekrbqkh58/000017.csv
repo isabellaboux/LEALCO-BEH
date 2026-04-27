@@ -1,3 +1,0 @@
-"0",""
-"0","# overall density plot"
-"0","plot(density(data$VOT, na.rm = TRUE))"
