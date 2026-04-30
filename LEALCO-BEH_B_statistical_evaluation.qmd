@@ -1093,8 +1093,8 @@ s <- ggplot(entrainment_data, aes(x=entrainment_VOTinv, y=entrainment_ACC)) +
   geom_text(x=1.5, y=-0.4, label=txt) +
   #xlab('<- faster for different                                                              faster for same ->\n\nSpeed advantage\n(same - different)') +
   xlab('Partner-Specific Naming Latency\n(same vs. different)') +
-  ylab('Partner-Specific Lablel Maintenance\n(same vs. different)') +
-    theme(axis.text=element_text(size=12), axis.title=element_text(size=14))
+  ylab('Partner-Specific Label Maintenance\n(same vs. different)') +
+    theme(axis.text=element_text(size=12), axis.title=element_text(size=12))
 ggsave("output_figures/LEALCO-BEH_entrainment_correlation_invVOT.pdf", width=6, height=3.5)
 s
 
