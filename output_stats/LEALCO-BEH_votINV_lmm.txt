@@ -1,120 +1,71 @@
 Linear mixed model fit by REML
 (p-values based on Wald z-scores) ['lmerMod']
-Formula: VOTinv ~ 1 + block + c_FASQUEL_image_agreement + partner_type +  
-    block:partner_type + block:c_FASQUEL_image_agreement + c_FASQUEL_concreteness +  
-    c_FASQUEL_image_agreement:c_FASQUEL_concreteness + c_SUBTLEX_frequency_log +  
-    c_FASQUEL_concreteness:c_SUBTLEX_frequency_log + partner_type:c_FASQUEL_concreteness +  
-    block:c_SUBTLEX_frequency_log + partner_type:c_SUBTLEX_frequency_log +  
-    partner_type:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
-    block:partner_type:c_SUBTLEX_frequency_log + block:c_FASQUEL_concreteness +  
-    block:c_FASQUEL_image_agreement:c_FASQUEL_concreteness +  
-    block:partner_type:c_FASQUEL_concreteness + block:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
-    block:partner_type:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
-    c_FASQUEL_image_agreement:partner_type + c_FASQUEL_image_agreement:partner_type:c_FASQUEL_concreteness +  
+Formula: VOTinv_fact ~ 1 + block + c_FASQUEL_image_agreement + partner_type +      block:partner_type + block:c_FASQUEL_image_agreement + c_FASQUEL_concreteness +  
+    c_FASQUEL_image_agreement:c_FASQUEL_concreteness + c_SUBTLEX_frequency_log +      c_FASQUEL_concreteness:c_SUBTLEX_frequency_log + partner_type:c_FASQUEL_concreteness +  
+    block:c_SUBTLEX_frequency_log + partner_type:c_SUBTLEX_frequency_log +      partner_type:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +      block:partner_type:c_SUBTLEX_frequency_log + block:c_FASQUEL_concreteness +  
+    block:c_FASQUEL_image_agreement:c_FASQUEL_concreteness +      block:partner_type:c_FASQUEL_concreteness + block:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
+    block:partner_type:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +      c_FASQUEL_image_agreement:partner_type + c_FASQUEL_image_agreement:partner_type:c_FASQUEL_concreteness +  
     block:c_FASQUEL_image_agreement:partner_type + block:c_FASQUEL_image_agreement:partner_type:c_FASQUEL_concreteness +  
-    c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log + c_FASQUEL_image_agreement:partner_type:c_SUBTLEX_frequency_log +  
-    c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
-    c_FASQUEL_image_agreement:partner_type:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
-    block:c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log +  
-    block:c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
-    block:c_FASQUEL_image_agreement:partner_type:c_SUBTLEX_frequency_log +  
-    block:c_FASQUEL_image_agreement:partner_type:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
-    (1 + partner_type + block | subjID) + (1 + partner_type +      block | target_label)
+    c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log + c_FASQUEL_image_agreement:partner_type:c_SUBTLEX_frequency_log +      c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +  
+    c_FASQUEL_image_agreement:partner_type:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +      block:c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log +  
+    block:c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +      block:c_FASQUEL_image_agreement:partner_type:c_SUBTLEX_frequency_log +  
+    block:c_FASQUEL_image_agreement:partner_type:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log +      (1 + partner_type + block | subjID) + (1 + partner_type +      block | target_label)
    Data: votINV
-Control: structure(list(optimizer = "bobyqa", restart_edge = TRUE, boundary.tol = 1e-05,  
-    calc.derivs = TRUE, use.last.params = FALSE, checkControl = list( 
-        check.nobs.vs.rankZ = "ignore", check.nobs.vs.nlev = "stop",  
-        check.nlev.gtreq.5 = "ignore", check.nlev.gtr.1 = "stop",  
-        check.nobs.vs.nRE = "stop", check.rankX = "message+drop.cols",  
-        check.scaleX = "warning", check.formula.LHS = "stop"),  
-    checkConv = list(check.conv.grad = list(action = "warning",  
-        tol = 0.002, relTol = NULL), check.conv.singular = list( 
-        action = "message", tol = 1e-04), check.conv.hess = list( 
-        action = "warning", tol = 1e-06)), optCtrl = list()), class = c("lmerControl",  "merControl"))
+Control: structure(list(optimizer = "bobyqa", restart_edge = TRUE, boundary.tol = 1e-05,      calc.derivs = TRUE, use.last.params = FALSE, checkControl = list( 
+        check.nobs.vs.rankZ = "ignore", check.nobs.vs.nlev = "stop",          check.nlev.gtreq.5 = "ignore", check.nlev.gtr.1 = "stop",          check.nobs.vs.nRE = "stop", check.rankX = "message+drop.cols",  
+        check.scaleX = "warning", check.formula.LHS = "stop"),      checkConv = list(check.conv.grad = list(action = "warning",          tol = 0.002, relTol = NULL), check.conv.singular = list( 
+        action = "message", tol = 1e-04), check.conv.hess = list(         action = "warning", tol = 1e-06)), optCtrl = list()), class = c("lmerControl",  "merControl"))
 
-REML criterion at convergence: -34660.8
+REML criterion at convergence: 10598.8
 
 Scaled residuals: 
     Min      1Q  Median      3Q     Max 
 -3.7439 -0.6317  0.0848  0.6819  2.7877 
 
 Random effects:
- Groups       Name          Variance  Std.Dev.  Corr       
- target_label (Intercept)   7.279e-09 8.532e-05            
-              partner_type1 5.817e-10 2.412e-05 -0.01      
-              block1        7.322e-11 8.557e-06 -0.33  0.43
- subjID       (Intercept)   5.998e-09 7.744e-05            
-              partner_type1 3.257e-10 1.805e-05 -0.03      
-              block1        1.303e-10 1.141e-05  0.27 -0.76
- Residual                   3.699e-08 1.923e-04            
+ Groups       Name          Variance Std.Dev. Corr       
+ target_label (Intercept)   0.727908 0.85318             
+              partner_type1 0.058167 0.24118  -0.01      
+              block1        0.007322 0.08557  -0.33  0.43
+ subjID       (Intercept)   0.599772 0.77445             
+              partner_type1 0.032568 0.18046  -0.03      
+              block1        0.013025 0.11413   0.27 -0.76
+ Residual                   3.698638 1.92318             
 Number of obs: 2489, groups:  target_label, 56; subjID, 30
 
 Fixed effects:
-                                                                                                Estimate Std. Error
-(Intercept)                                                                                    7.405e-04  2.039e-05
-block1                                                                                        -6.078e-05  5.267e-06
-c_FASQUEL_image_agreement                                                                      1.003e-04  4.797e-05
-partner_type1                                                                                  3.218e-05  7.193e-06
-c_FASQUEL_concreteness                                                                         1.697e-05  4.078e-05
-c_SUBTLEX_frequency_log                                                                        5.460e-06  2.063e-05
-block1:partner_type1                                                                           1.311e-05  4.666e-06
-block1:c_FASQUEL_image_agreement                                                               1.755e-05  1.611e-05
-c_FASQUEL_image_agreement:c_FASQUEL_concreteness                                              -9.938e-05  5.634e-05
-c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                                                -4.810e-05  5.045e-05
-partner_type1:c_FASQUEL_concreteness                                                          -1.010e-05  1.723e-05
-block1:c_SUBTLEX_frequency_log                                                                 2.925e-06  6.888e-06
-partner_type1:c_SUBTLEX_frequency_log                                                          7.410e-06  8.678e-06
-block1:c_FASQUEL_concreteness                                                                 -1.086e-06  1.364e-05
-c_FASQUEL_image_agreement:partner_type1                                                       -2.194e-06  2.040e-05
-c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log                                              7.277e-06  5.581e-05
-partner_type1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                                   3.897e-06  2.120e-05
-block1:partner_type1:c_SUBTLEX_frequency_log                                                   5.830e-06  6.600e-06
-block1:c_FASQUEL_image_agreement:c_FASQUEL_concreteness                                        5.803e-07  1.869e-05
-block1:partner_type1:c_FASQUEL_concreteness                                                   -4.480e-06  1.310e-05
-block1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                                         -2.555e-06  1.689e-05
-c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness                                -1.604e-05  2.608e-05
-block1:c_FASQUEL_image_agreement:partner_type1                                                -1.811e-06  1.547e-05
-c_FASQUEL_image_agreement:partner_type1:c_SUBTLEX_frequency_log                                2.298e-05  2.403e-05
-c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                      -4.105e-05  1.203e-04
-block1:c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log                                       7.130e-06  1.873e-05
-block1:partner_type1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                           -2.425e-05  1.618e-05
-block1:c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness                         -5.816e-06  1.829e-05
-c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log        -7.441e-05  5.107e-05
-block1:c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log               -6.356e-05  4.016e-05
-block1:c_FASQUEL_image_agreement:partner_type1:c_SUBTLEX_frequency_log                         1.471e-05  1.803e-05
-block1:c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log -1.832e-05  3.857e-05
-                                                                                              t value Pr(>|t|)    
-(Intercept)                                                                                    36.318  < 2e-16 ***
-block1                                                                                        -11.539  < 2e-16 ***
-c_FASQUEL_image_agreement                                                                       2.091  0.03651 *  
-partner_type1                                                                                   4.473  7.7e-06 ***
-c_FASQUEL_concreteness                                                                          0.416  0.67731    
-c_SUBTLEX_frequency_log                                                                         0.265  0.79123    
-block1:partner_type1                                                                            2.809  0.00497 ** 
-block1:c_FASQUEL_image_agreement                                                                1.090  0.27582    
-c_FASQUEL_image_agreement:c_FASQUEL_concreteness                                               -1.764  0.07773 .  
-c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                                                 -0.953  0.34044    
-partner_type1:c_FASQUEL_concreteness                                                           -0.586  0.55800    
-block1:c_SUBTLEX_frequency_log                                                                  0.425  0.67113    
-partner_type1:c_SUBTLEX_frequency_log                                                           0.854  0.39314    
-block1:c_FASQUEL_concreteness                                                                  -0.080  0.93654    
-c_FASQUEL_image_agreement:partner_type1                                                        -0.108  0.91433    
-c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log                                               0.130  0.89626    
-partner_type1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                                    0.184  0.85414    
-block1:partner_type1:c_SUBTLEX_frequency_log                                                    0.883  0.37708    
-block1:c_FASQUEL_image_agreement:c_FASQUEL_concreteness                                         0.031  0.97523    
-block1:partner_type1:c_FASQUEL_concreteness                                                    -0.342  0.73227    
-block1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                                          -0.151  0.87974    
-c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness                                 -0.615  0.53851    
-block1:c_FASQUEL_image_agreement:partner_type1                                                 -0.117  0.90681    
-c_FASQUEL_image_agreement:partner_type1:c_SUBTLEX_frequency_log                                 0.956  0.33900    
-c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                       -0.341  0.73291    
-block1:c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log                                        0.381  0.70341    
-block1:partner_type1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                            -1.498  0.13403    
-block1:c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness                          -0.318  0.75051    
-c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log         -1.457  0.14514    
-block1:c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                -1.583  0.11349    
-block1:c_FASQUEL_image_agreement:partner_type1:c_SUBTLEX_frequency_log                          0.816  0.41467    
-block1:c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log  -0.475  0.63484    
+                                                                                               Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                                                                                    7.405480   0.203907  36.318  < 2e-16 ***
+block1                                                                                        -0.607784   0.052673 -11.539  < 2e-16 ***
+c_FASQUEL_image_agreement                                                                      1.003158   0.479716   2.091  0.03651 *  
+partner_type1                                                                                  0.321752   0.071925   4.473  7.7e-06 ***
+c_FASQUEL_concreteness                                                                         0.169703   0.407801   0.416  0.67731    
+c_SUBTLEX_frequency_log                                                                        0.054603   0.206276   0.265  0.79123    
+block1:partner_type1                                                                           0.131083   0.046661   2.809  0.00497 ** 
+block1:c_FASQUEL_image_agreement                                                               0.175535   0.161077   1.090  0.27582    
+c_FASQUEL_image_agreement:c_FASQUEL_concreteness                                              -0.993842   0.563406  -1.764  0.07773 .  
+c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                                                -0.480965   0.504523  -0.953  0.34044    
+partner_type1:c_FASQUEL_concreteness                                                          -0.100963   0.172345  -0.586  0.55800    
+block1:c_SUBTLEX_frequency_log                                                                 0.029246   0.068879   0.425  0.67113    
+partner_type1:c_SUBTLEX_frequency_log                                                          0.074103   0.086779   0.854  0.39314    
+block1:c_FASQUEL_concreteness                                                                 -0.010864   0.136446  -0.080  0.93654    
+c_FASQUEL_image_agreement:partner_type1                                                       -0.021944   0.203985  -0.108  0.91433    
+c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log                                              0.072770   0.558093   0.130  0.89626    
+partner_type1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                                   0.038968   0.211973   0.184  0.85414    
+block1:partner_type1:c_SUBTLEX_frequency_log                                                   0.058299   0.066002   0.883  0.37708    
+block1:c_FASQUEL_image_agreement:c_FASQUEL_concreteness                                        0.005803   0.186924   0.031  0.97523    
+block1:partner_type1:c_FASQUEL_concreteness                                                   -0.044805   0.130967  -0.342  0.73227    
+block1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                                         -0.025554   0.168902  -0.151  0.87974    
+c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness                                -0.160392   0.260775  -0.615  0.53851    
+block1:c_FASQUEL_image_agreement:partner_type1                                                -0.018110   0.154697  -0.117  0.90681    
+c_FASQUEL_image_agreement:partner_type1:c_SUBTLEX_frequency_log                                0.229789   0.240328   0.956  0.33900    
+c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                      -0.410470   1.202803  -0.341  0.73291    
+block1:c_FASQUEL_image_agreement:c_SUBTLEX_frequency_log                                       0.071304   0.187287   0.381  0.70341    
+block1:partner_type1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log                           -0.242497   0.161838  -1.498  0.13403    
+block1:c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness                         -0.058163   0.182922  -0.318  0.75051    
+c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log        -0.744051   0.510700  -1.457  0.14514    
+block1:c_FASQUEL_image_agreement:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log               -0.635633   0.401611  -1.583  0.11349    
+block1:c_FASQUEL_image_agreement:partner_type1:c_SUBTLEX_frequency_log                         0.147078   0.180309   0.816  0.41467    
+block1:c_FASQUEL_image_agreement:partner_type1:c_FASQUEL_concreteness:c_SUBTLEX_frequency_log -0.183165   0.385666  -0.475  0.63484    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
