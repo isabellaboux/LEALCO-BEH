@@ -1,0 +1,1108 @@
+---
+title: "B_merge"
+---
+
+# LEALCO-BEH
+
+# Information
+
+### Goal
+
+Analyse data *from test task*
+
+### Inputs
+
+The output file is a large .csv table containing the entire data of the file in a long format. It puts together the PsychoPy input files, the demographics, the VOT files as well as the relevant information from the debriefing questionnaire.
+
+# Load packages
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(lme4)
+library(buildmer)
+library(emmeans)
+library(lmerTest)
+library(gridExtra)
+library(sjPlot)
+source("R/utils.R")
+```
+
+# Set some custom settings
+
+```{r}
+theme_set(theme_bw())
+pal1 = c("#F5793A", "#4f5dab")
+```
+
+# Read files
+
+Read files
+
+```{r}
+data <- read.csv('data/LEALCO-BEH_test_merged_data.csv')
+demo <- read.csv('data/demographic/LEALCO-BEH_demographics.csv',  sep = ";", fileEncoding = "Latin1", check.names = F)
+```
+
+Clean-up variables and variables names.
+
+```{r}
+
+data$subjID <- as_factor(data$subjID)
+data$partner_order <- as_factor(data$partner_order)
+data$key_trained <- as_factor(data$key_trained)
+data$key_untrained <- as_factor(data$key_untrained)
+data$block <- as_factor(data$block)
+data$partner <- as_factor(data$partner)
+data$class <- as_factor(data$class)
+data$partner_type <- as_factor(data$partner_type)
+data$SUBTLEX_frequency_log_cat <- as_factor(data$SUBTLEX_frequency_log_cat)
+data$error <- as_factor(data$error)
+data$target_label <- as_factor(data$target_label)
+data$Geschlecht <- as_factor(data$Geschlecht)
+data$Händigkeit <- as_factor(data$Händigkeit)
+data$VOT <- as.numeric(data$VOT)
+data$correct <- as.numeric(data$correct)
+demo$Alter <- as.numeric(demo$Alter )
+```
+
+# Preliminary data sanity checks
+
+## (1) Check general error pattern
+
+Here, the general error distribution (regardless of experimental condition) is assessed by subject. This can potentially constitute the basis for data exclusion.
+
+| Code    | Meaning                                     |
+|---------|---------------------------------------------|
+| correct | said exactly what they were expected to say |
+| 1       | compounded                                  |
+| 2       | semantically related                        |
+| 3       | phonologically related                      |
+| 4       | unrelated                                   |
+| 5       | misarticulation                             |
+| 6       | other                                       |
+| 7       | visual                                      |
+| 8       | audio recording error                       |
+| 9       | no response                                 |
+
+: Table 1: Key for interpreting the "Error"" variable
+
+```{r}
+# plot accuracy counts by subject
+pdf("output_figures/LEALCO-BEH_raw screening.pdf")
+p <- ggplot(data, aes(x=error, fill=error)) + 
+  geom_bar() +
+  facet_wrap(~subjID)
+p
+dev.off()
+p
+
+# count how many trials of each type
+data %>% count(error) 
+
+```
+
+## (2) Check general RT pattern
+
+Let's screen for anomalous RTs in the data files, which could have originated from inaccuracies in data reprocessing. It appears that no anomalies are (any longer) present in the data.
+
+```{r}
+
+# overall density plot
+plot(density(data$VOT, na.rm = TRUE))
+
+# zooming into the left part of the histogramm to spot anomalous VOTs (<400 ms), and export them.
+hist(data$VOT, xlim=c(0, 1000), breaks = 1000)
+dummy <- data[data$VOT < 400,]
+write.csv(dummy, 'data/LEALCO-BEH_test_anomalous_RTs.csv', row.names=FALSE, fileEncoding = "UTF-8")
+
+# Look for NA values and export them.
+dummy <- data[is.na(data$VOT),]
+write.csv(dummy, 'data/LEALCO-BEH_test_anomalousNA_RTs.csv', row.names=FALSE, fileEncoding = "UTF-8")
+
+# histogramm fo ronly correct responses
+hist(data$VOT[data$correct == 1], xlim=c(0, 1000), breaks = 1000)
+plot(density(data$VOT[data$correct == 1], na.rm = TRUE))
+```
+
+## (3) Transform non-normal variables
+
+After trying several normalization approaches, it appears that the **inverse** **normalization** is most appropriatel.
+
+```{r}
+
+# plot native VOTs
+hist(data$VOT, breaks=500)
+
+# plot log10 notmalized VOTs
+data$VOTlog10 <- log10(data$VOT)
+hist(data$VOTlog10, breaks=500)
+
+# plot inverse normalized VOTs
+data$VOTinv <- 1/data$VOT
+hist(data$VOTinv, breaks=500)
+
+# plot square root normalized VOTs
+data$VOTsqrt <- sqrt(data$VOT)
+hist(data$VOTsqrt, breaks=500)
+```
+
+## (4) Are there anomalous subjects?
+
+Calculate descriptive across collapsed conditions. Note that no trials/subjects are excluded.
+
+```{r}
+
+# descritpives of accuracy: within-subjects
+summary_acc_wSubj <- data %>%
+  group_by(subjID) %>%
+  summarise(mean_ACC = mean(correct), sd=sd(correct), sem=(sd(correct)/sqrt((length(correct)))))
+
+# descritpives of accuracy: between-subjects
+summary_acc_bSubj <- summary_acc_wSubj %>%
+  summarise(grand_mean_ACC = mean(mean_ACC), sd=sd(mean_ACC), sem=(sd(mean_ACC)/sqrt((length(mean_ACC)))))
+
+# descritpives of vot: within-subjects
+summary_vot_wSubj <- data %>%
+  filter(correct == 1) %>%
+  group_by(subjID) %>%
+  summarise(mean_VOT = mean(VOT), sd=sd(VOT), sem=(sd(VOT)/sqrt((length(VOT)))))
+
+# descritpives of vot: between-subjects
+summary_vot_bSubj <- summary_vot_wSubj %>%
+  summarise(grand_mean_VOT = mean(mean_VOT), sd=sd(mean_VOT), sem=(sd(mean_VOT)/sqrt((length(mean_VOT)))))
+```
+
+# Subject exclusion
+
+Select trained trials, with a focus on those that are valid, i.e. where no recording error occurred. We therefore exclude all trials coded as: (5) misarticulation, (6) other, (7) visual, (8) audio recording error (9) no response.
+
+```{r}
+data_trained <- data %>%
+  filter(class == 'test item') %>%
+  filter(error %in% c('correct', '1', '2', '3', '4'))
+```
+
+Determine if any subjects need to be excluded based on data distribution for **accuracy** (collapsing all test conditions).
+
+```{r}
+
+# aggregate within subject
+data_trained_sum_wSubj <- data_trained %>%
+  group_by(subjID) %>%
+  summarise(mean = mean(correct), sem=(sd(correct)/sqrt((length(correct)))), sd=sd(correct))
+
+# aggregate between subjects
+data_trained_sum_bSubj <- data_trained_sum_wSubj %>%
+  summarise(grandMean = mean(mean), sem=(sd(mean)/sqrt((length(mean)))), sd=sd(mean))
+
+# calculate SD intervals
+plus2SD = data_trained_sum_bSubj$grandMean + data_trained_sum_bSubj$sd * 2
+minus2SD = data_trained_sum_bSubj$grandMean - data_trained_sum_bSubj$sd * 2
+plus25SD = data_trained_sum_bSubj$grandMean + data_trained_sum_bSubj$sd * 2.5
+minus25SD = data_trained_sum_bSubj$grandMean - data_trained_sum_bSubj$sd * 2.5
+plus3SD = data_trained_sum_bSubj$grandMean + data_trained_sum_bSubj$sd * 3
+minus3SD = data_trained_sum_bSubj$grandMean - data_trained_sum_bSubj$sd * 3
+
+# plot
+pdf("output_figures/LEALCO-BEH_acc_outliers.pdf")
+ggplot(data_trained_sum_wSubj, aes(x=mean)) +
+  geom_dotplot() +
+  geom_density(alpha=.2, fill="black") +
+  geom_vline(aes(xintercept=data_trained_sum_bSubj$grandMean)) +
+  geom_vline(aes(xintercept=plus2SD), linetype="dashed") +
+  geom_vline(aes(xintercept=minus2SD), linetype="dashed") +
+  geom_vline(aes(xintercept=plus25SD), linetype="dashed") +
+  geom_vline(aes(xintercept=minus25SD), linetype="dashed") +
+  geom_vline(aes(xintercept=plus3SD), linetype="dashed") +
+  geom_vline(aes(xintercept=minus3SD), linetype="dashed") +
+  annotate("text", x=plus2SD, y=3, label="+2SD", angle = 30) +
+  annotate("text", x=minus2SD, y=3, label="-2SD", angle = 30) +
+  annotate("text", x=plus25SD, y=3, label="+2.5SD", angle = 30) +
+  annotate("text", x=minus25SD, y=3, label="-2.5SD", angle = 30) +
+  annotate("text", x=plus3SD, y=3, label="+3SD", angle = 30) +
+  annotate("text", x=minus3SD, y=3, label="-3SD", angle = 30) +
+  annotate("text", x=data_trained_sum_bSubj$grandMean, y=3, label="mean", angle = 30) +
+  xlim(0,1) +
+ ggtitle("Subject outliers based on accuracy")
+dev.off()
+
+# select outliers on the basis of +/-2.5 SD
+data_trained_sum_wSubj[data_trained_sum_wSubj$mean < minus25SD |
+                       data_trained_sum_wSubj$mean > plus25SD, ]
+```
+
+Do same thing with **naming latencies**.
+
+```{r}
+
+# aggregate within subject
+data_trained_sum_wSubj_vot <- data_trained %>%
+  group_by(subjID) %>%
+  summarise(mean = mean(VOT), sem=(sd(VOT)/sqrt((length(VOT)))), sd=sd(VOT))
+
+# aggregate between subjects
+data_trained_sum_bSubj_vot <- data_trained_sum_wSubj_vot %>%
+  summarise(grandMean = mean(mean), sem=(sd(mean)/sqrt((length(mean)))), sd=sd(mean))
+
+# calculate SD intervals
+plus2SD = data_trained_sum_bSubj_vot$grandMean + data_trained_sum_bSubj_vot$sd * 2
+minus2SD = data_trained_sum_bSubj_vot$grandMean - data_trained_sum_bSubj_vot$sd * 2
+plus25SD = data_trained_sum_bSubj_vot$grandMean + data_trained_sum_bSubj_vot$sd * 2.5
+minus25SD = data_trained_sum_bSubj_vot$grandMean - data_trained_sum_bSubj_vot$sd * 2.5
+plus3SD = data_trained_sum_bSubj_vot$grandMean + data_trained_sum_bSubj_vot$sd * 3
+minus3SD = data_trained_sum_bSubj_vot$grandMean - data_trained_sum_bSubj_vot$sd * 3
+
+# plot
+pdf("output_figures/LEALCO-BEH_vot_outliers.pdf")
+ggplot(data_trained_sum_wSubj_vot, aes(x=mean)) +
+  geom_dotplot() +
+  geom_density(alpha=.2, fill="black") +
+  geom_vline(aes(xintercept=data_trained_sum_bSubj_vot$grandMean)) +
+  geom_vline(aes(xintercept=plus2SD), linetype="dashed") +
+  geom_vline(aes(xintercept=minus2SD), linetype="dashed") +
+  geom_vline(aes(xintercept=plus25SD), linetype="dashed") +
+  geom_vline(aes(xintercept=minus25SD), linetype="dashed") +
+  geom_vline(aes(xintercept=plus3SD), linetype="dashed") +
+  geom_vline(aes(xintercept=minus3SD), linetype="dashed") +
+  annotate("text", x=plus2SD, y=3, label="+2SD", angle = 30) +
+  annotate("text", x=minus2SD, y=3, label="-2SD", angle = 30) +
+  annotate("text", x=plus25SD, y=3, label="+2.5SD", angle = 30) +
+  annotate("text", x=minus25SD, y=3, label="-2.5SD", angle = 30) +
+  annotate("text", x=plus3SD, y=3, label="+3SD", angle = 30) +
+  annotate("text", x=minus3SD, y=3, label="-3SD", angle = 30) +
+  annotate("text", x=data_trained_sum_bSubj_vot$grandMean, y=3, label="mean", angle = 30) +
+  xlim(0,NA) 
+  ggtitle("Subject outliers based on naming latency (native)")
+dev.off()
+
+# select outliers on the basis of +/-2.5 SD
+data_trained_sum_wSubj_vot[data_trained_sum_wSubj_vot$mean < minus25SD |
+                       data_trained_sum_wSubj_vot$mean > plus25SD, ]
+```
+
+Do the same with **inverted naming latencies**.
+
+```{r}
+
+# aggregate within subject
+data_trained_sum_wSubj_votINV <- data_trained %>%
+  group_by(subjID) %>%
+  summarise(mean = mean(VOTinv), sem=(sd(VOTinv)/sqrt((length(VOTinv)))), sd=sd(VOTinv))
+
+# aggregate between subjects
+data_trained_sum_bSubj_votINV <- data_trained_sum_wSubj_votINV %>%
+  summarise(grandMean = mean(mean), sem=(sd(mean)/sqrt((length(mean)))), sd=sd(mean))
+
+# calculate SD intervals
+plus2SD = data_trained_sum_bSubj_votINV$grandMean + data_trained_sum_bSubj_votINV$sd * 2
+minus2SD = data_trained_sum_bSubj_votINV$grandMean - data_trained_sum_bSubj_votINV$sd * 2
+plus25SD = data_trained_sum_bSubj_votINV$grandMean + data_trained_sum_bSubj_votINV$sd * 2.5
+minus25SD = data_trained_sum_bSubj_votINV$grandMean - data_trained_sum_bSubj_votINV$sd * 2.5
+plus3SD = data_trained_sum_bSubj_votINV$grandMean + data_trained_sum_bSubj_votINV$sd * 3
+minus3SD = data_trained_sum_bSubj_votINV$grandMean - data_trained_sum_bSubj_votINV$sd * 3
+
+# plot
+pdf("output_figures/LEALCO-BEH_votINV_outliers.pdf")
+ggplot(data_trained_sum_wSubj_votINV, aes(x=mean)) +
+  geom_dotplot() +
+  geom_density(alpha=.2, fill="black") +
+  geom_vline(aes(xintercept=data_trained_sum_bSubj_votINV$grandMean)) +
+  geom_vline(aes(xintercept=plus2SD), linetype="dashed") +
+  geom_vline(aes(xintercept=minus2SD), linetype="dashed") +
+  geom_vline(aes(xintercept=plus25SD), linetype="dashed") +
+  geom_vline(aes(xintercept=minus25SD), linetype="dashed") +
+  geom_vline(aes(xintercept=plus3SD), linetype="dashed") +
+  geom_vline(aes(xintercept=minus3SD), linetype="dashed") +
+  annotate("text", x=plus2SD, y=3, label="+2SD", angle = 30) +
+  annotate("text", x=minus2SD, y=3, label="-2SD", angle = 30) +
+  annotate("text", x=plus25SD, y=3, label="+2.5SD", angle = 30) +
+  annotate("text", x=minus25SD, y=3, label="-2.5SD", angle = 30) +
+  annotate("text", x=plus3SD, y=3, label="+3SD", angle = 30) +
+  annotate("text", x=minus3SD, y=3, label="-3SD", angle = 30) +
+  annotate("text", x=data_trained_sum_bSubj_votINV$grandMean, y=3, label="mean", angle = 30) +
+  ggtitle("Subject outliers based on naming latency (inverted)")
+dev.off()
+
+# select outliers on the basis of +/-2.5 SD
+data_trained_sum_wSubj_votINV[data_trained_sum_wSubj_votINV$mean < minus25SD |
+                       data_trained_sum_wSubj_votINV$mean > plus25SD, ]
+```
+
+Overall, this condition-blind analysis of outliers showed that, for the **accuracy** measure, applying the following threshold results in excluding following subjects:
+
+-   **2 SD:** 15, 25
+
+-   **2.5 SD:** 15
+
+-   **3 SD:** 15
+
+For the **(native)** **VOT** measure applying the following threshold results in excluding following subjects:
+
+-   **2 SD:** 15
+
+-   **2.5 SD:** 15
+
+-   **3 SD:** 15
+
+For the **(inverted)** **VOT** measure applying the following threshold results in excluding following subjects:
+
+-   **2 SD:** 15
+
+-   **2.5 SD:** 15
+
+-   **3 SD:** 15
+
+In addition, subject 20 reported not having a "normal or corrected-to-normal" hearing and has therefore been excluded from the analyses.
+
+We select the exclusion criteria of +/-3SD resulting in the exclusion of subjects 15 and 20.
+
+```{r}
+exclusion_acc <- c('15', '22', '27', '28')
+exclusion_vot <- c('15', '22', '27', '28')
+```
+
+# Trial Overview
+
+Here, we generate some summary statistic about trial classification (after remoing outliers).
+
+```{r}
+
+# select data (only on test items, but before filtering for invalid trials)
+data_overview <- data %>%
+  filter(class == 'test item') 
+data_overview$error <- as_factor(data_overview$error)
+
+# aggregte (within subject)
+overview_wSubj <- data_overview %>%
+  filter(!subjID %in% exclusion_acc) %>%
+  group_by(subjID, error) %>%
+  summarise(n = n()) %>%
+  complete(error, fill = list(n = 0)) %>%
+  group_by(subjID) %>%
+  mutate(
+    perc = n / sum(n) * 100
+  ) %>%
+  ungroup()
+
+# aggregte (between subject)
+overview_bSubj <- overview_wSubj %>%
+  group_by(error) %>%
+  summarise(count_mean = mean(n), count_sd = sd(n), perc_mean = mean(perc), perc_sd = sd(perc))
+
+# save
+write.csv(overview_bSubj, "output_stats/LEALCO-BEH_trial_overview.csv")
+```
+
+# Sample statistics
+
+```{r}
+
+# sample ACC
+sample_ACC <- demo %>%
+  filter(!subjID  %in%  exclusion_acc) %>%
+  summarise(age_mean = mean(Alter, na.rm = TRUE), age_sd=sd(Alter, na.rm = TRUE),
+            n=length(subjID))
+sample_ACC_sex <- demo %>%
+  filter(!subjID  %in%  exclusion_acc) %>%
+  group_by(Geschlecht) %>%
+  summarize(n= n()) %>%
+  pivot_wider(names_from=Geschlecht, values_from=n)
+sample_ACC <- cbind(sample_ACC, sample_ACC_sex)
+
+# sample VOTinv
+sample_VOTinv <- demo %>%
+  filter(!subjID  %in%  exclusion_vot) %>%
+  summarise(age_mean = mean(Alter, na.rm = TRUE), age_sd=sd(Alter, na.rm = TRUE),
+            n=length(subjID))
+sample_VOTinv_sex <- demo %>%
+  filter(!subjID  %in%  exclusion_vot) %>%
+  group_by(Geschlecht) %>%
+  summarize(n= n()) %>%
+  pivot_wider(names_from=Geschlecht, values_from=n)
+sample_VOTinv <- cbind(sample_VOTinv, sample_VOTinv_sex)
+
+# save
+write.csv(sample_ACC, "output_stats/LEALCO-BEH_demographic_summary_ACCsample.csv")
+write.csv(sample_VOTinv, "output_stats/LEALCO-BEH_demographic_summary_VOTinvsample.csv")
+```
+
+# == Label Maintenance ==
+
+## Descriptive analysis
+
+### By Subject (partner)
+
+Here we just have a simple look at accuracy, that is we consider correct only those trials where the subject said *exactly* the word they were expected to say.
+
+```{r}
+
+# aggregte (within subject)
+acc_wSubj_partner <- data_trained %>%
+  filter(!subjID %in%  exclusion_acc) %>%
+  group_by(subjID, partner_type) %>%
+  summarise(mean = mean(correct), sd=sd(correct), sem=(sd(correct)/sqrt((length(correct)))), n=length(correct))
+
+# save
+write.csv(acc_wSubj_partner, "output_stats/LEALCO-BEH_accuracy_withinSubjects_partner.csv", row.names = FALSE)
+
+# plot (within subject)
+pdf("output_figures/LEALCO-BEH_accuracy_withinSubjects_partner_barplot.pdf")
+a <- ggplot(acc_wSubj_partner, aes(y=mean, x=partner_type, fill=partner_type)) + 
+  geom_bar(stat="identity", color = "black", position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.2,
+                position=position_dodge(.9)) +
+    scale_fill_manual(values = pal1) +
+  labs(y="Precedent maintenance (proportion)", x="Partner") +
+  theme(axis.text=element_text(size=15), axis.title=element_text(size=16)) +
+  ylim(0,1) +
+  facet_wrap(~subjID)
+a
+dev.off() 
+a
+```
+
+```{r}
+# aggregte (between subject)
+acc_bSubj_partner <- acc_wSubj_partner %>%
+  group_by(partner_type) %>%
+  summarise(mean_bSubj = mean(mean), sd_bSubj=sd(mean), sem_bSubj=(sd(mean)/sqrt((length(mean)))), n_bSubj=length(mean))
+
+# save
+write.csv(acc_bSubj_partner, "output_stats/LEALCO-BEH_accuracy_betweenSubjects_partner.csv", row.names = FALSE)
+
+# plot (within subject)
+pdf("output_figures/LEALCO-BEH_accuracy_betweenSubjects_partner_barplot.pdf")
+c <- ggplot(acc_bSubj_partner, aes(y=mean_bSubj, x=partner_type, fill=partner_type)) + 
+  geom_bar(stat="identity", color = "black", position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean_bSubj-sem_bSubj, ymax=mean_bSubj+sem_bSubj), width=.2, position=position_dodge(.9)) +
+  scale_fill_manual(values = pal1) +
+  labs(y="Precedent maintenance (proportion)", x="Partner") +
+  theme(axis.text=element_text(size=15), axis.title=element_text(size=16)) +
+  ylim(0,1)
+c
+dev.off()
+c
+
+# make other more transparent plot
+pdf("output_figures/LEALCO-BEH_accuracy_betweenSubjects_partner_pointplot.pdf")
+zz <- ggplot(acc_bSubj_partner, aes(y=mean_bSubj, x=partner_type, fill=partner_type)) + 
+  geom_point(data= acc_wSubj_partner, aes(y=mean, x=partner_type, color=partner_type), stat="identity", position = position_jitter(w = 0.05), size=3) + 
+  scale_colour_manual(values = pal1) +
+    geom_point(stat="identity", color = "black", position=position_dodge(), size=3) +
+  geom_errorbar(aes(ymin=mean_bSubj-sem_bSubj, ymax=mean_bSubj+sem_bSubj), width=.2, position=position_dodge(.9)) +
+  labs(y="Precedent maintenance (proportion)", x="Partner") +
+  theme(axis.text=element_text(size=15), axis.title=element_text(size=16)) +
+  ylim(0,1)
+zz
+dev.off()
+zz
+```
+
+### By Subject (partner x block)
+
+Now we do the same procedure, but while also accounting for block
+
+```{r}
+# aggregte (within subject)
+acc_wSubj_partner_block <- data_trained %>%
+  filter(!subjID %in%  exclusion_acc) %>%
+  group_by(subjID, partner_type, block) %>%
+  summarise(mean = mean(correct), sd=sd(correct), sem=(sd(correct)/sqrt((length(correct)))), n=length(correct))
+
+# save
+write.csv(acc_wSubj_partner_block, "output_stats/LEALCO-BEH_accuracy_withinSubjects_partner_x_block.csv", row.names = FALSE)
+
+# plot (within subject)
+pdf("output_figures/LEALCO-BEH_accuracy_withinSubjects_partner_x_block_barplot.pdf")
+a <- ggplot(acc_wSubj_partner_block, aes(y=mean, x=block, fill=partner_type)) + 
+  geom_bar(stat="identity", color = "black", position=position_dodge()) +
+  scale_fill_manual(values = pal1) +
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.2,
+                position=position_dodge(.9)) +
+  labs(y="Precedent maintenance (proportion)", x="Block") +
+  theme(axis.text=element_text(size=15), axis.title=element_text(size=16)) +
+  ylim(0,1) +
+  facet_wrap(~subjID)
+a
+dev.off()
+a
+```
+
+```{r}
+# aggregte (between subject)
+acc_bSubj_partner_block <- acc_wSubj_partner_block %>%
+  group_by(partner_type,block) %>%
+  summarise(mean_bSubj = mean(mean), sd_bSubj=sd(mean), sem_bSubj=(sd(mean)/sqrt((length(mean)))), n_bSubj=length(mean))
+
+# save
+write.csv(acc_bSubj_partner_block, "output_stats/LEALCO-BEH_accuracy_betweenSubjects_partner_x_block.csv", row.names = FALSE)
+
+# plot (within subject)
+pdf("output_figures/LEALCO-BEH_accuracy_betweenSubjects_partner_x_block_barplot.pdf")
+c <- ggplot(acc_bSubj_partner_block, aes(y=mean_bSubj, x=block, fill=partner_type)) + 
+  geom_bar(stat="identity", color = "black", position=position_dodge()) +
+  scale_fill_manual(values = pal1) +
+  geom_errorbar(aes(ymin=mean_bSubj-sem_bSubj, ymax=mean_bSubj+sem_bSubj), width=.2, position=position_dodge(.9)) +
+  labs(y="Precedent maintenance (proportion)", x="Block") +
+  theme(axis.text=element_text(size=15), axis.title=element_text(size=16)) +
+  ylim(0,1)
+c
+dev.off()
+c
+
+# more trasparent plot
+pdf("output_figures/LEALCO-BEH_accuracy_betweenSubjects_partner_x_block_pointplot.pdf")
+tt <- ggplot(acc_bSubj_partner_block, aes(y=mean_bSubj, x=block, fill=partner_type)) + 
+  geom_point(data= acc_wSubj_partner_block, aes(y=mean, x=block, color=partner_type), stat="identity", position = position_jitterdodge(jitter.w = 0.05, dodge.width=(.9)), size=3) +
+  scale_colour_manual(values = pal1) +
+  geom_point(stat="identity", color = "black", position=position_dodge(.9), size=3) +
+  geom_errorbar(aes(ymin=mean_bSubj-sem_bSubj, ymax=mean_bSubj+sem_bSubj), width=.2, position=position_dodge(.9)) +
+  labs(y="Precedent maintenance (proportion)", x="Block") +
+  theme(axis.text=element_text(size=15), axis.title=element_text(size=16)) +
+  ylim(0,NA)
+tt
+dev.off()
+tt
+```
+
+### By Items (partner)
+
+```{r}
+
+# aggregte (within item)
+acc_wItem_partner <- data_trained %>%
+  group_by(target_label, partner_type) %>%
+    summarise(mean = mean(correct), sd=sd(correct), sem=(sd(correct)/sqrt((length(correct)))), n=length(correct))
+
+# save
+write.csv(acc_wItem_partner, "output_stats/LEALCO-BEH_accuracy_withinItems_partner.csv", row.names = FALSE)
+
+# plot (within item)
+pdf("output_figures/LEALCO-BEH_accuracy_withinItems_partner_barplot.pdf")
+a <- ggplot(acc_wItem_partner, aes(y=mean, x=partner_type, fill=partner_type)) + 
+  geom_bar(stat="identity", color = "black", position=position_dodge()) +
+  scale_fill_manual(values = pal1) +
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.2,
+                position=position_dodge(.9)) +
+  labs(y="Precedent maintenance (proportion)", x="Partner") +
+  theme(axis.text=element_text(size=8), axis.title=element_text(size=16)) +
+  ylim(0,1) +
+  facet_wrap(~target_label)
+a
+dev.off()
+a
+```
+
+## LMM
+
+Prepare the ACC data for LMMs.
+
+```{r}
+# for each trial, cretae new variable containing the perceived quality of teamwork, dependin gon the current partner (this just takes the correct value from the debfirefing questionnaire, depending on which partner the trial took place with)
+data_trained$team  <- ifelse(data_trained$partner == 'A', data_trained$T101, data_trained$T201)
+
+# select data
+acc <- data_trained %>%
+  filter(!subjID %in%  exclusion_acc)
+
+# Set sum contrasts for all variables.
+acc$partner_type <- droplevels(acc$partner_type)
+contrasts(acc$partner_type) <- contr.sum(2)
+contrasts(acc$block)  <- contr.sum(2)
+
+# check contrasts
+contrasts(acc$partner_type)
+contrasts(acc$block)
+
+# center covariates
+acc <- acc %>%
+  mutate(c_SUBTLEX_frequency_log = SUBTLEX_frequency_log - mean(SUBTLEX_frequency_log, na.rm=TRUE))
+
+acc <- acc %>%
+  mutate(c_FASQUEL_concreteness = FASQUEL_concreteness - mean(FASQUEL_concreteness, na.rm=TRUE))
+
+acc <- acc %>%
+  mutate(c_FASQUEL_image_agreement = FASQUEL_image_agreement - mean(FASQUEL_image_agreement, na.rm=TRUE))
+
+acc <- acc %>%
+  mutate(team = team - mean(team, na.rm=TRUE))
+```
+
+Try to find the maximally convergent model by using the *buildmer()* approach.
+
+**/!\\ MIGHT TAKE \>1h TO RUN /!\\**
+
+```{r}
+# indicate the maximal effect srucutre (both fixend and rendom) that is motivated based on design & hypotheses
+f <- correct ~ partner_type*block*c_SUBTLEX_frequency_log * c_FASQUEL_image_agreement * c_FASQUEL_concreteness +
+     (partner_type*block*c_SUBTLEX_frequency_log * c_FASQUEL_image_agreement * c_FASQUEL_concreteness | subjID) +
+     (partner_type*block | target_label)
+
+# select the maximal model that still converges
+m_acc <- buildmer(f,family=binomial, data=acc,buildmerControl=buildmerControl(direction='order',
+          args=list(control=lmerControl(optimizer='bobyqa'))))
+summary(m_acc)
+
+sink("output_stats/LEALCO-BEH_acc_lmm.txt")
+print(summary(m_acc))
+sink()  # returns output to the console
+
+save_model_to_html(m_acc@model, 3,  "LEALCO-BEH_acc_lmm.html")
+```
+
+Make usual sanity checks for the winning model.
+
+```{r}
+# qqplot
+pdf("output_figures/LEALCO-BEH_acc_lmm_qqplot.pdf")
+qqnorm(residuals(m_acc))
+dev.off()
+
+# histogram
+pdf("output_figures/LEALCO-BEH_acc_lmm_hist.pdf")
+hist(residuals(m_acc))
+dev.off()
+
+# standardized residuals
+pdf("output_figures/LEALCO-BEH_acc_lmm_residuals.pdf")
+plot(residuals(m_acc))
+dev.off()
+```
+
+### Post-hoc / marginal means (Partner Type)
+
+```{r}
+# make post-hoc with no correction
+m_acc.emm_none_partner <-emmeans(m_acc@model, pairwise ~ partner_type, adjust = "none")
+m_acc.emm_none_partner.ph_none_partner <- as.data.frame(m_acc.emm_none_partner$contrasts)
+write.csv(m_acc.emm_none_partner,"output_stats/LEALCO-BEH_acc_ph_none.csv", row.names = FALSE)
+
+# extract and save marginal means
+m_acc.mm_partner <- as.data.frame(m_acc.emm_none_partner$emmeans)
+m_acc.mm_partner$emmean_untrans <- plogis(m_acc.mm_partner$emmean)
+m_acc.mm_partner$asymp.LCL_untrans <- plogis(m_acc.mm_partner$asymp.LCL)
+m_acc.mm_partner$asymp.UCL_untrans <- plogis(m_acc.mm_partner$asymp.UCL)
+
+# save them
+write.csv(m_acc.mm_partner,"output_stats/LEALCO-BEH_acc_lmm_marginalMeans_partner.csv", row.names = FALSE)
+
+# visualize marginal means
+tt <- ggplot(m_acc.mm_partner, aes(y=emmean_untrans*100, x=partner_type, color=partner_type)) + 
+  scale_colour_manual(values = pal1) +
+  geom_point(stat="identity", position=position_dodge(.9), size=3) +
+  geom_errorbar(aes(ymin=asymp.LCL_untrans*100, ymax=asymp.UCL_untrans*100), width=.2, position=position_dodge(.9)) +
+  labs(y="Label Maintenance (%)", x="Partner") +
+  theme(axis.text=element_text(size=12), axis.title=element_text(size=16)) +
+  ylim(0,100)
+tt
+ggsave("output_figures/LEALCO-BEH_acc_lmm_marginal_partner_pointplot.pdf", width=4
+       , height=3.5)
+tt
+```
+
+# == Naming Latencies (at correct trials) ==
+
+## Descriptive statistics
+
+### By Subject (native, partner)
+
+Here we just have a simple look at naming latencies, while considering only trials that are correct. In a first moment, we just examine naming latencies in their native format, that is without any type of normalization for approximating normality. Note that the data is right-skewed, expected for latency data.
+
+```{r}
+# aggregte (within subject)
+vot_wSubj_partner <- data_trained %>%
+  filter(correct == 1) %>%
+  filter(!subjID %in%  exclusion_vot) %>%
+  group_by(subjID, partner_type) %>%
+  summarise(mean = mean(VOT), sd=sd(VOT), sem=(sd(VOT)/sqrt((length(VOT)))), n=length(VOT))
+
+# save
+write.csv(vot_wSubj_partner, "output_stats/LEALCO-BEH_vot_withinSubjects_partner.csv", row.names = FALSE)
+
+# plot (barplot)
+pdf("output_figures/LEALCO-BEH_vot_withinSubjects_partner_barplot.pdf")
+a <- ggplot(vot_wSubj_partner, aes(y=mean, x=partner_type, fill=partner_type)) + 
+  geom_bar(stat="identity", color = "black", position=position_dodge()) +
+  scale_fill_manual(values = pal1) +
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.2, position=position_dodge(.9)) +
+  labs(y="Naming latencies (ms)", x="Partner") +
+  theme(axis.text=element_text(size=8), axis.title=element_text(size=16)) +
+  #ylim(0,1) +
+  facet_wrap(~subjID)
+a
+dev.off()
+a
+```
+
+```{r}
+
+# aggregate (between subject)
+vot_bSubj_partner <- vot_wSubj_partner %>%
+  group_by(partner_type) %>%
+  summarise(mean_bSubj = mean(mean), sd_bSubj=sd(mean), sem_bSubj=(sd(mean)/sqrt((length(mean)))), n_bSubj=length(mean))
+
+# save
+write.csv(vot_bSubj_partner, "output_stats/LEALCO-BEH_vot_betweenSubjects_partner.csv", row.names = FALSE)
+
+# plot (barplot)
+pdf("output_figures/LEALCO-BEH_vot_betweenSubjects_partner_barplot.pdf")
+c <- ggplot(vot_bSubj_partner, aes(y=mean_bSubj, x=partner_type, fill=partner_type)) + 
+  geom_bar(stat="identity", color = "black", position=position_dodge()) +
+  scale_fill_manual(values = pal1) +
+  geom_errorbar(aes(ymin=mean_bSubj-sem_bSubj, ymax=mean_bSubj+sem_bSubj), width=.2, position=position_dodge(.9)) +
+  labs(y="Naming latencies (ms)", x="Partner") +
+  theme(axis.text=element_text(size=15), axis.title=element_text(size=16))
+c
+dev.off()
+c
+
+# plot (raincloud)
+pdf("output_figures/LEALCO-BEH_vot_betweenSubjects_partner_pointplot.pdf")
+tt <- ggplot(vot_bSubj_partner, aes(y=mean_bSubj, x=partner_type, fill=partner_type)) + 
+  geom_point(data= vot_wSubj_partner, aes(y=mean, x=partner_type, color=partner_type), stat="identity", position = position_jitter(w = 0.05), size=3) +
+  scale_colour_manual(values = pal1) +
+  geom_point(stat="identity", color = "black", position=position_dodge(), size=3) +
+  geom_errorbar(aes(ymin=mean_bSubj-sem_bSubj, ymax=mean_bSubj+sem_bSubj), width=.2, position=position_dodge(.9)) +
+  labs(y="Naming latencies (ms)", x="Partner") +
+  theme(axis.text=element_text(size=15), axis.title=element_text(size=16)) +
+  ylim(0,NA)
+tt
+dev.off()
+tt
+```
+
+### By Subjects (native, partner x block)
+
+Now we do the same procedure, but while also accounting for block.
+
+```{r}
+# aggregte (within subject)
+vot_wSubj_partner_block <- data_trained %>%
+  filter(correct == 1) %>%
+  filter(!subjID %in%  exclusion_vot) %>%
+  group_by(subjID, partner_type, block) %>%
+    summarise(mean = mean(VOT), sd=sd(VOT), sem=(sd(VOT)/sqrt((length(VOT)))), n=length(VOT))
+
+# save
+write.csv(vot_wSubj_partner_block, "output_stats/LEALCO-BEH_vot_withinSubjects_partner_x_block.csv", row.names = FALSE)
+
+# plot (barplot)
+pdf("output_figures/LEALCO-BEH_vot_withinSubjects_partner_x_block_barplot.pdf")
+a <- ggplot(vot_wSubj_partner_block, aes(y=mean, x=block, fill=partner_type)) + 
+  geom_bar(stat="identity", color = "black", position=position_dodge()) +
+  scale_fill_manual(values = pal1) +
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.2,
+                position=position_dodge(.9)) +
+      labs(y="Naming latencies (ms)", x="Block") +
+  theme(axis.text=element_text(size=15), axis.title=element_text(size=16)) +
+  ylim(0,NA) +
+  facet_wrap(~subjID)
+a
+dev.off()
+a
+```
+
+```{r}
+
+# aggregte (between subject)
+vot_bSubj_partner_block <- vot_wSubj_partner_block %>%
+  group_by(partner_type,block) %>%
+    summarise(mean_bSubj = mean(mean), sd_bSubj=sd(mean), sem_bSubj=(sd(mean)/sqrt((length(mean)))), n_bSubj=length(mean))
+
+# save
+write.csv(vot_bSubj_partner_block, "output_stats/LEALCO-BEH_vot_betweenSubjects_partner_x_block.csv", row.names = FALSE)
+
+# plot (barplot)
+pdf("output_figures/LEALCO-BEH_vot_betweenSubjects_partner_x_block_barplot.pdf")
+c <- ggplot(vot_bSubj_partner_block, aes(y=mean_bSubj, x=block, fill=partner_type)) + 
+  geom_bar(stat="identity", color = "black", position=position_dodge()) +
+  scale_fill_manual(values = pal1) +
+  geom_errorbar(aes(ymin=mean_bSubj-sem_bSubj, ymax=mean_bSubj+sem_bSubj), width=.2, position=position_dodge(.9)) +
+    labs(y="Naming latencies (ms)", x="Block") +
+  theme(axis.text=element_text(size=15), axis.title=element_text(size=16)) +
+  ylim(0,NA)
+c
+dev.off()
+c
+
+# plot (pointplot)
+pdf("output_figures/LEALCO-BEH_vot_betweenSubjects_partner_x_block_pointplot.pdf")
+tt <- ggplot(vot_bSubj_partner_block, aes(y=mean_bSubj, x=block, fill=partner_type)) + 
+  geom_point(data= vot_wSubj_partner_block, aes(y=mean, x=block, color=partner_type), stat="identity", position = position_jitterdodge(jitter.w = 0.05, dodge.width=(.9)), size=3) +
+  scale_colour_manual(values = pal1) +
+  geom_point(stat="identity", color = "black", position=position_dodge(.9), size=3) +
+  geom_errorbar(aes(ymin=mean_bSubj-sem_bSubj, ymax=mean_bSubj+sem_bSubj), width=.2, position=position_dodge(.9)) +
+  labs(y="Naming latencies (ms)", x="Block") +
+  theme(axis.text=element_text(size=15), axis.title=element_text(size=16)) +
+  ylim(0,NA)
+tt
+dev.off()
+tt
+```
+
+## LMM
+
+Prepare the VOT data for LMMs. Note that we will be running he model on inverted naming latency (1/naming latency). This results in the magnitude of the datapoints being inverted. The estimates of the models have to be read accordingly.
+
+```{r}
+
+# select data
+votINV <- data_trained %>%
+  filter(correct == 1) %>%
+  filter(!subjID %in%  exclusion_vot)
+
+# Set sum contrasts for all variables.
+votINV$partner_type <- droplevels(votINV$partner_type)
+contrasts(votINV$partner_type) <- contr.sum(2)
+contrasts(votINV$block)  <- contr.sum(2)
+
+# check contrasts
+contrasts(votINV$partner_type)
+contrasts(votINV$block)
+
+# center covariates
+votINV <- votINV %>%
+  mutate(c_SUBTLEX_frequency_log = SUBTLEX_frequency_log - mean(SUBTLEX_frequency_log, na.rm=TRUE))
+
+votINV <- votINV %>%
+  mutate(c_FASQUEL_concreteness = FASQUEL_concreteness - mean(FASQUEL_concreteness, na.rm=TRUE))
+
+votINV <- votINV %>%
+  mutate(c_FASQUEL_image_agreement = FASQUEL_image_agreement - mean(FASQUEL_image_agreement, na.rm=TRUE))
+
+votINV <- votINV %>%
+  mutate(team = team - mean(team, na.rm=TRUE))
+
+votINV$VOTinv_fact <- votINV$VOTinv * 10000
+
+```
+
+Try to find the maximally convergent model by using the *buildmer()* approach.
+
+```{r}
+
+# indicate the maximal effect strucutre (both fixed and random) that is motivated based on design & hypotheses
+f <- VOTinv_fact ~ partner_type*block*c_SUBTLEX_frequency_log * c_FASQUEL_image_agreement * c_FASQUEL_concreteness +
+     (partner_type*block*c_SUBTLEX_frequency_log * c_FASQUEL_image_agreement * c_FASQUEL_concreteness | subjID) +
+     (partner_type*block | target_label)
+
+# select the maximal model that still converges
+m_votINV <- buildmer(f,data=votINV,buildmerControl=buildmerControl(direction='order',
+          args=list(control=lmerControl(optimizer='bobyqa'))))
+summary(m_votINV)
+
+
+sink("output_stats/LEALCO-BEH_votINV_lmm.txt")
+print(summary(m_votINV))
+sink()  # returns output to the console
+
+save_model_to_html(m_votINV@model, 3, 'LEALCO-BEH_votINV_lmm.html')
+```
+
+Make model sanity checks. Everything seems ok.
+
+```{r}
+# qqplot
+pdf("output_figures/LEALCO-BEH_votINV_lmm_qqplot.pdf")
+qqnorm(residuals(m_votINV))
+dev.off()
+
+# histogram
+pdf("output_figures/LEALCO-BEH_votINV_lmm_hist.pdf")
+hist(residuals(m_votINV))
+dev.off()
+
+# standardized residuals
+pdf("output_figures/LEALCO-BEH_votINV_lmm_residuals.pdf")
+plot(residuals(m_votINV))
+dev.off()
+```
+
+### Post-hoc / marginal means (Partner Type)
+
+```{r}
+# make post-hoc with no correction
+m_votINV.emm_none_partner <-emmeans(m_votINV@model, pairwise ~ partner_type, adjust = "none")
+m_votINV.ph_none_partner <- as.data.frame(m_votINV.emm_none_partner$contrasts)
+write.csv(m_votINV.ph_none_partner,"output_stats/LEALCO-BEH_votINV_ph_none_partner.csv", row.names = FALSE)
+
+# extract and save marginal means
+m_votINV.mm_partner <- as.data.frame(m_votINV.emm_none_partner$emmeans)
+m_votINV.mm_partner$emmean_untrans <- 1/m_votINV.mm_partner$emmean
+m_votINV.mm_partner$lower.CL_untrans <- 1/m_votINV.mm_partner$upper.CL
+m_votINV.mm_partner$upper.CL_untrans <- 1/m_votINV.mm_partner$lower.CL
+write.csv(m_votINV.mm_partner,"output_stats/LEALCO-BEH_votINV_lmm_marginal_partner.csv", row.names = FALSE)
+
+# plot
+pdf("output_figures/LEALCO-BEH_votINV_lmm_marginal_partner_pointplot.pdf")
+tt <- ggplot(m_votINV.mm_partner, aes(y=emmean_untrans, x=partner_type, color=partner_type)) + 
+  scale_colour_manual(values = pal1) +
+  geom_point(stat="identity", position=position_dodge(.9), size=3) +
+  geom_errorbar(aes(ymin=lower.CL_untrans, ymax=upper.CL_untrans), width=.2, position=position_dodge(.9)) +
+  labs(y="Naming latencies (ms)", x="Block") +
+  theme(axis.text=element_text(size=12), axis.title=element_text(size=16)) +
+  ylim(0,NA)
+tt
+dev.off()
+tt
+```
+
+### Post-hoc / marginal means (Block)
+
+```{r}
+
+# make post-hoc with no correction
+m_votINV.emm_none_block <-emmeans(m_votINV@model, pairwise ~ block, adjust = "none")
+m_votINV.ph_none_block <- as.data.frame(m_votINV.emm_none_block$contrasts)
+write.csv(m_votINV.ph_none_block,"output_stats/LEALCO-BEH_votINV_ph_none_block.csv", row.names = FALSE)
+
+# extract and save marginal means
+m_votINV.mm_block <- as.data.frame(m_votINV.emm_none_block$emmeans)
+m_votINV.mm_block$emmean_untrans <- 1/m_votINV.mm_block$emmean
+m_votINV.mm_block$lower.CL_untrans <- 1/m_votINV.mm_block$upper.CL
+m_votINV.mm_block$upper.CL_untrans <- 1/m_votINV.mm_block$lower.CL
+write.csv(m_votINV.mm_block,"output_stats/LEALCO-BEH_votINV_lmm_marginal_block.csv", row.names = FALSE)
+
+# plot
+pdf("output_figures/LEALCO-BEH_votINV_lmm_marginal_block_pointplot.pdf")
+tt <- ggplot(m_votINV.mm_block, aes(y=emmean_untrans, x=block)) + 
+  #scale_colour_manual(values = pal1) +
+  geom_point(stat="identity", position=position_dodge(.9), size=3) +
+  geom_errorbar(aes(ymin=lower.CL_untrans, ymax=upper.CL_untrans), width=.2, position=position_dodge(.9)) +
+  labs(y="Naming latencies (ms)", x="Block") +
+  theme(axis.text=element_text(size=12), axis.title=element_text(size=16)) +
+  ylim(0,NA)
+tt
+dev.off()
+tt
+```
+
+### Post-hoc / marginal means for (Partner Type x Block)
+
+Compute post-hoc tests and export.
+
+```{r}
+# make post-hoc with tukey correction
+m_votINV.emm_tukey_partner_x_block <-emmeans(m_votINV@model, pairwise ~ partner_type * block, adjust = "tukey")
+m_votINV.ph_tukey_partner_x_block <- as.data.frame(m_votINV.emm_tukey_partner_x_block$contrasts)
+write.csv(m_votINV.ph_tukey_partner_x_block,"output_stats/LEALCO-BEH_votINV_ph_tukey_partner_x_block.csv", row.names = FALSE)
+
+# make post-hoc with no correction
+m_votINV.emm_none_partner_x_block <-emmeans(m_votINV@model, pairwise ~ partner_type * block, adjust = "none")
+m_votINV.ph_none_partner_x_block <- as.data.frame(m_votINV.emm_none_partner_x_block$contrasts)
+m_votINV.ph_none_partner_x_block$p.valueBonf2 = m_votINV.ph_none_partner_x_block$p.value *2
+write.csv(m_votINV.ph_none_partner_x_block,"output_stats/LEALCO-BEH_votINV_ph_none_partner_x_block.csv", row.names = FALSE)
+
+# extract and save marginal means
+m_votINV.mm_partner_x_block <- as.data.frame(m_votINV.emm_tukey_partner_x_block$emmeans)
+m_votINV.mm_partner_x_block$emmean_untrans <- 1/m_votINV.mm_partner_x_block$emmean
+m_votINV.mm_partner_x_block$lower.CL_untrans <- 1/m_votINV.mm_partner_x_block$upper.CL
+m_votINV.mm_partner_x_block$upper.CL_untrans <- 1/m_votINV.mm_partner_x_block$lower.CL
+write.csv(m_votINV.mm_partner_x_block,"output_stats/LEALCO-BEH_votINV_lmm_marginal_partner_x_block.csv", row.names = FALSE)
+
+# plot
+tt <- ggplot(m_votINV.mm_partner_x_block, aes(y=emmean_untrans, x=block, color=partner_type)) + 
+  scale_colour_manual(values = pal1) +
+  geom_point(stat="identity", position=position_dodge(.9), size=3) +
+  geom_errorbar(aes(ymin=lower.CL_untrans, ymax=upper.CL_untrans), width=.2, position=position_dodge(.9)) +
+  labs(y="Naming Latencies (ms)", x="Block") +
+  theme(axis.text=element_text(size=12), axis.title=element_text(size=16)) +
+  ylim(0,1710)
+tt
+ggsave("output_figures/LEALCO-BEH_votINV_lmm_marginal_partner_x_block_pointplot.pdf", width=4 , height=3.5)
+tt
+
+```
+
+# == Entrainment analysis ==
+
+The following analysis examines the reaction between Label Maintenance and (inverted) Naming Latency. This is interesting because there could be a speed accuracy trade-off (i.e. entraining with the partner is cognitively costly) or on the contrary it is possible that entraining with the partner is in fact facilitatory.
+
+```{r}
+# aggregte accuracy (within subject)
+acc_wSubj_partner <- data_trained %>%
+  filter(!subjID %in%  exclusion_acc) %>%
+  group_by(subjID, partner_type) %>%
+  summarise(mean_ACC = mean(correct), sd_ACC=sd(correct), sem_ACC=(sd(correct)/sqrt((length(correct)))), n_ACC=length(correct))
+
+# aggregate VOTinv (within subjects) only for correct trials
+votINV_wSubj_partner <- data_trained %>%
+  filter(correct == 1) %>%
+  filter(!subjID %in%  exclusion_vot) %>%
+  group_by(subjID, partner_type) %>%
+  summarise(mean_VOTinv = mean(VOTinv), sd_VOTinv=sd(VOTinv), sem_VOTinv=(sd(VOTinv)/sqrt((length(VOTinv)))), n_VOTinv=length(VOTinv))
+
+# merge the two DVs in one dataframe
+entrainment_data <- merge(acc_wSubj_partner,votINV_wSubj_partner,by=c("subjID","partner_type"))
+
+# pivot from long to wide
+entrainment_data <- entrainment_data %>% 
+  pivot_wider(
+    names_from = partner_type, 
+    values_from = c(mean_ACC, sd_ACC, sem_ACC, n_ACC, mean_VOTinv, sd_VOTinv, sem_VOTinv, n_VOTinv)
+  )
+
+# calculate entrainment scores (same - different)
+entrainment_data$entrainment_ACC <- entrainment_data$mean_ACC_same - entrainment_data$mean_ACC_different
+entrainment_data$entrainment_VOTinv <- (entrainment_data$mean_VOTinv_same - entrainment_data$mean_VOTinv_different) * 10000
+
+# correlation
+corr <- cor.test(entrainment_data$entrainment_ACC, entrainment_data$entrainment_VOTinv)
+sink('output_stats/LEALCO-BEH_entrainment_correlation_invVOT.txt')
+print(corr)
+sink()
+
+# format for plot
+if (corr$p.value < 0.001) {
+  txt <- paste0('R=', round(corr$estimate, digits = 3), "\np<0.001")
+} else {
+  txt <- paste0('R=', round(corr$estimate, digits = 3), "\np=", round(corr$p.value, digits = 3) )
+}
+
+# scatterplot
+s <- ggplot(entrainment_data, aes(x=entrainment_VOTinv, y=entrainment_ACC)) +
+  geom_point() +
+  stat_smooth(method=lm, fullrange=TRUE, color = 'black') + 
+  geom_hline(yintercept=0, linetype="dotted") +
+  geom_vline(xintercept=0, linetype="dotted") +
+  xlim(-2.5, 2.5) +
+  ylim(-0.5, 0.5) +
+  geom_text(x=1.5, y=-0.4, label=txt) +
+  #xlab('<- faster for different                                                              faster for same ->\n\nSpeed advantage\n(same - different)') +
+  xlab('Partner-Specific Naming Latency\n(same vs. different)') +
+  ylab('Partner-Specific Label Maintenance\n(same vs. different)') +
+    theme(axis.text=element_text(size=12), axis.title=element_text(size=12))
+ggsave("output_figures/LEALCO-BEH_entrainment_correlation_invVOT.pdf", width=6, height=3.5)
+s
+
+```
+
+```{r}
+# Plot the correlation
+p3<- ggplot(entrainment_data, aes(x=mean_VOTinv_same, y=mean_ACC_same)) +
+     geom_point(color=pal1[1]) +
+     geom_smooth(method=lm , color=pal1[1], se=FALSE) +
+     geom_point(aes(x=mean_VOTinv_different, y=mean_ACC_different), color=pal1[2]) +
+     geom_smooth(aes(x=mean_VOTinv_different, y=mean_ACC_different), method=lm , color=pal1[2], se=FALSE) +
+     xlab('Naming Latencies (inverted)') +
+     ylab('Label Maintenance') 
+ p3
+ ggsave("output_figures/LEALCO-BEH_correlation_behavioral_invVOT.pdf")
+ 
+# make separate correlations for same and differet
+cor_same <- cor.test(entrainment_data$mean_VOTinv_same, entrainment_data$mean_ACC_same)
+cor_diff <- cor.test(entrainment_data$mean_VOTinv_different, entrainment_data$mean_ACC_different)
+sink('output_stats/LEALCO-BEH_correlation_behavior_invVOT.txt')
+print(cor_same)
+print(cor_diff)
+sink()
+print(cor_same)
+print(cor_diff)
+```
+
+# Session Information
+
+```{r}
+sessionInfo()
+```
