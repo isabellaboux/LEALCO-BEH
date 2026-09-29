@@ -1290,6 +1290,8 @@ s
 
 ```
 
+Also carry out the **percentage bend** **correlation** (Wilcox, 1994) and the **skipped Pearson correlation** (Wilcox, 2004).
+
 ```{r}
 
 dat <- entrainment_data[, c("entrainment_ACC", "entrainment_VOTinv")]
