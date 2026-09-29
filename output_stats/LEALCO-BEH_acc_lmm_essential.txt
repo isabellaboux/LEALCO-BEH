@@ -1,0 +1,39 @@
+Generalized linear mixed model fit by maximum likelihood (Laplace Approximation)
+(p-values based on Wald z-scores) ['glmerMod']
+ Family: binomial  ( logit )
+Formula: correct ~ 1 + partner_type + block + partner_type:block + (1 +      partner_type | target_label) + (1 + partner_type | subjID)
+   Data: acc
+Control: structure(list(optimizer = "bobyqa", restart_edge = TRUE, boundary.tol = 1e-05,      calc.derivs = TRUE, use.last.params = FALSE, checkControl = list( 
+        check.nobs.vs.rankZ = "ignore", check.nobs.vs.nlev = "stop",          check.nlev.gtreq.5 = "ignore", check.nlev.gtr.1 = "stop",          check.nobs.vs.nRE = "stop", check.rankX = "message+drop.cols",  
+        check.scaleX = "warning", check.formula.LHS = "stop"),      checkConv = list(check.conv.grad = list(action = "warning",          tol = 0.002, relTol = NULL), check.conv.singular = list( 
+        action = "message", tol = 1e-04), check.conv.hess = list(         action = "warning", tol = 1e-06)), optCtrl = list()), class = c("lmerControl",  "merControl"))
+
+     AIC      BIC   logLik deviance df.resid 
+  3297.1   3358.2  -1638.6   3277.1     3302 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.8140  0.1069  0.3597  0.5323  2.1626 
+
+Random effects:
+ Groups       Name          Variance Std.Dev. Corr
+ target_label (Intercept)   0.73050  0.8547       
+              partner_type1 0.10095  0.3177   0.01
+ subjID       (Intercept)   0.51581  0.7182       
+              partner_type1 0.06562  0.2562   0.48
+Number of obs: 3312, groups:  target_label, 56; subjID, 30
+
+Fixed effects:
+                     Estimate Std. Error  z value Pr(>|z|) Pr(>|t|)    
+(Intercept)           1.42301    0.18161  7.83535    0.000 4.68e-15 ***
+partner_type1         0.27142    0.08189  3.31456    0.001 0.000918 ***
+block1               -0.01686    0.04459 -0.37807    0.705 0.705377    
+partner_type1:block1 -0.01349    0.04459 -0.30260    0.762 0.762192    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) prtn_1 block1
+partnr_typ1  0.237              
+block1      -0.003 -0.004       
+prtnr_ty1:1 -0.002 -0.006  0.105

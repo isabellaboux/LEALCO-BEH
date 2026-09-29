@@ -1,0 +1,50 @@
+Generalized linear mixed model fit by maximum likelihood (Laplace Approximation)
+(p-values based on Wald z-scores) ['glmerMod']
+ Family: binomial  ( logit )
+Formula: correct ~ 1 + c_FASQUEL_image_agreement + partner_type + c_FASQUEL_concreteness +      c_SUBTLEX_frequency_log + block + partner_type:block + (1 +  
+    partner_type | target_label) + (1 + partner_type + c_SUBTLEX_frequency_log +      c_FASQUEL_concreteness + c_FASQUEL_image_agreement | subjID)
+   Data: acc
+Control: structure(list(optimizer = "bobyqa", restart_edge = TRUE, boundary.tol = 1e-05,      calc.derivs = TRUE, use.last.params = FALSE, checkControl = list( 
+        check.nobs.vs.rankZ = "ignore", check.nobs.vs.nlev = "stop",          check.nlev.gtreq.5 = "ignore", check.nlev.gtr.1 = "stop",  
+        check.nobs.vs.nRE = "stop", check.rankX = "message+drop.cols",          check.scaleX = "warning", check.formula.LHS = "stop"),      checkConv = list(check.conv.grad = list(action = "warning",  
+        tol = 0.002, relTol = NULL), check.conv.singular = list(         action = "message", tol = 1e-04), check.conv.hess = list( 
+        action = "warning", tol = 1e-06)), optCtrl = list()), class = c("lmerControl",  "merControl"))
+
+     AIC      BIC   logLik deviance df.resid 
+  3287.4   3440.0  -1618.7   3237.4     3287 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.8977  0.0972  0.3436  0.5191  2.1390 
+
+Random effects:
+ Groups       Name                      Variance Std.Dev. Corr                   
+ target_label (Intercept)               0.62723  0.7920                          
+              partner_type1             0.10407  0.3226   0.09                   
+ subjID       (Intercept)               0.54410  0.7376                          
+              partner_type1             0.05907  0.2430    0.53                  
+              c_SUBTLEX_frequency_log   0.12155  0.3486    0.67  0.14            
+              c_FASQUEL_concreteness    0.33443  0.5783   -0.32  0.06 -0.12      
+              c_FASQUEL_image_agreement 0.28739  0.5361    0.20  0.34 -0.50 -0.15
+Number of obs: 3312, groups:  target_label, 56; subjID, 30
+
+Fixed effects:
+                          Estimate Std. Error  z value Pr(>|z|) Pr(>|t|)    
+(Intercept)                1.47066    0.17987  8.17620    0.000 2.93e-16 ***
+c_FASQUEL_image_agreement  0.84935    0.45240  1.87744    0.060 0.060457 .  
+partner_type1              0.27485    0.08122  3.38419    0.001 0.000714 ***
+c_FASQUEL_concreteness     0.13037    0.40311  0.32341    0.746 0.746385    
+c_SUBTLEX_frequency_log    0.04902    0.17103  0.28664    0.774 0.774391    
+block1                    -0.01789    0.04499 -0.39773    0.691 0.690826    
+partner_type1:block1      -0.01347    0.04499 -0.29940    0.765 0.764633    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) c_FASQUEL__ prtn_1 c_FASQUEL_c c_SUBT block1
+c_FASQUEL__  0.052                                             
+partnr_typ1  0.280  0.064                                      
+c_FASQUEL_c -0.062 -0.723      -0.013                          
+c_SUBTLEX__  0.189  0.047       0.054 -0.120                   
+block1      -0.003 -0.001      -0.004  0.001      -0.002       
+prtnr_ty1:1 -0.002  0.000      -0.006 -0.001       0.000  0.100
