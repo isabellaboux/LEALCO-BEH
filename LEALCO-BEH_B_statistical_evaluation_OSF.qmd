@@ -757,8 +757,8 @@ tt
 
 ```{r}
 # indicate the maximal effect srucutre (both fixend and rendom) that is motivated based on design & hypotheses
-f <- correct ~ partner_type*block +
-     (partner_type*block | subjID) +
+f <- correct ~ partner_type*block + c_FASQUEL_image_agreement +
+     (partner_type*block + c_FASQUEL_image_agreement| subjID) +
      (partner_type*block | target_label)
 
 # select the maximal model that still converges
@@ -1208,8 +1208,8 @@ tt
 
 ```{r}
 # indicate the maximal effect strucutre (both fixed and random) that is motivated based on design & hypotheses
-f <- VOTinv_fact ~ partner_type * block +
-     (partner_type*block | subjID) +
+f <- VOTinv_fact ~ partner_type * block + c_FASQUEL_image_agreement +
+     (partner_type*block + c_FASQUEL_image_agreement | subjID) +
      (partner_type*block | target_label)
 
 # select the maximal model that still converges
