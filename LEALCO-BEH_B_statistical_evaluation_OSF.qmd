@@ -728,7 +728,7 @@ save_model_to_html(m_acc_cov@model, 3,  "LEALCO-BEH_acc_lmm_covariate.html")
 # make post-hoc with no correction
 m_acc_cov.emm_none_partner <-emmeans(m_acc_cov@model, pairwise ~ partner_type, adjust = "none")
 m_acc_cov.emm_none_partner.ph_none_partner <- as.data.frame(m_acc_cov.emm_none_partner$contrasts)
-write.csv(m_acc_cov.emm_none_partner,"output_stats/LEALCO-BEH_acc_ph_none.csv", row.names = FALSE)
+write.csv(m_acc_cov.emm_none_partner,"output_stats/LEALCO-BEH_acc_ph_none_covariate.csv", row.names = FALSE)
 
 # extract and save marginal means
 m_acc_cov.mm_partner <- as.data.frame(m_acc_cov.emm_none_partner$emmeans)
@@ -747,7 +747,7 @@ tt <- ggplot(m_acc_cov.mm_partner, aes(y=emmean_untrans*100, x=partner_type, col
   labs(y="Label Maintenance (%)", x="Partner") +
   theme(axis.text=element_text(size=12), axis.title=element_text(size=16)) +
   ylim(0,100)
-tt
+
 ggsave("output_figures/LEALCO-BEH_acc_lmm_marginal_partner_pointplot_covariate.pdf", width=4
        , height=3.5)
 tt
@@ -757,9 +757,9 @@ tt
 
 ```{r}
 # indicate the maximal effect srucutre (both fixend and rendom) that is motivated based on design & hypotheses
-f <- correct ~ partner_type*block + c_FASQUEL_image_agreement +
-     (partner_type*block + c_FASQUEL_image_agreement| subjID) +
-     (partner_type*block | target_label)
+f <- correct ~ partner_type * block + c_FASQUEL_image_agreement +
+     (partner_type * block + c_FASQUEL_image_agreement| subjID) +
+     (partner_type * block | target_label)
 
 # select the maximal model that still converges
 m_acc_ess <- buildmer(f,family=binomial, data=acc,buildmerControl=buildmerControl(direction='order',
@@ -771,6 +771,26 @@ print(summary(m_acc_ess))
 sink()  # returns output to the console
 
 save_model_to_html(m_acc_ess@model, 3,  "LEALCO-BEH_acc_lmm_essential.html")
+```
+
+## LMM - nano
+
+```{r}
+# indicate the maximal effect srucutre (both fixend and rendom) that is motivated based on design & hypotheses
+f <- correct ~ partner_type * block +
+     (partner_type * block | subjID) +
+     (partner_type * block | target_label)
+
+# select the maximal model that still converges
+m_acc_nano <- buildmer(f,family=binomial, data=acc,buildmerControl=buildmerControl(direction='order',
+          args=list(control=lmerControl(optimizer='bobyqa'))))
+summary(m_acc_nano)
+
+sink("output_stats/LEALCO-BEH_acc_lmm_nano.txt")
+print(summary(m_acc_nano))
+sink()  # returns output to the console
+
+save_model_to_html(m_acc_nano@model, 3,  "LEALCO-BEH_acc_lmm_nano.html")
 ```
 
 # == Naming Latencies (at correct trials) ==
@@ -1047,6 +1067,7 @@ tt <- ggplot(m_votINV.mm_block, aes(y=emmean_untrans, x=block)) +
   ylim(0,NA)
 tt
 dev.off()
+tt
 ```
 
 ### Post-hoc / marginal means for (Partner Type x Block)
@@ -1082,6 +1103,7 @@ tt <- ggplot(m_votINV.mm_partner_x_block, aes(y=emmean_untrans, x=block, color=p
   ylim(0,1710)
 tt
 ggsave("output_figures/LEALCO-BEH_votINV_lmm_marginal_partner_x_block_pointplot.pdf", width=4 , height=3.5)
+tt
 
 ```
 
@@ -1175,20 +1197,20 @@ Compute post-hoc tests and export.
 # make post-hoc with tukey correction
 m_votINV_cov.emm_tukey_partner_x_block <-emmeans(m_votINV_cov@model, pairwise ~ partner_type * block, adjust = "tukey")
 m_votINV_cov.ph_tukey_partner_x_block <- as.data.frame(m_votINV_cov.emm_tukey_partner_x_block$contrasts)
-write.csv(m_votINV_cov.ph_tukey_partner_x_block,"output_stats/LEALCO-BEH_votINV_ph_tukey_partner_x_block.csv", row.names = FALSE)
+write.csv(m_votINV_cov.ph_tukey_partner_x_block,"output_stats/LEALCO-BEH_votINV_ph_tukey_partner_x_block_covariate.csv", row.names = FALSE)
 
 # make post-hoc with no correction
 m_votINV_cov.emm_none_partner_x_block <-emmeans(m_votINV_cov@model, pairwise ~ partner_type * block, adjust = "none")
 m_votINV_cov.ph_none_partner_x_block <- as.data.frame(m_votINV_cov.emm_none_partner_x_block$contrasts)
 m_votINV_cov.ph_none_partner_x_block$p.valueBonf2 = m_votINV_cov.ph_none_partner_x_block$p.value *2
-write.csv(m_votINV_cov.ph_none_partner_x_block,"output_stats/LEALCO-BEH_votINV_ph_none_partner_x_block.csv", row.names = FALSE)
+write.csv(m_votINV_cov.ph_none_partner_x_block,"output_stats/LEALCO-BEH_votINV_ph_none_partner_x_block_covariate.csv", row.names = FALSE)
 
 # extract and save marginal means
 m_votINV_cov.mm_partner_x_block <- as.data.frame(m_votINV_cov.emm_tukey_partner_x_block$emmeans)
 m_votINV_cov.mm_partner_x_block$emmean_untrans <- 1/ (m_votINV_cov.mm_partner_x_block$emmean / fact)
 m_votINV_cov.mm_partner_x_block$lower.CL_untrans <- 1/ (m_votINV_cov.mm_partner_x_block$upper.CL / fact)
 m_votINV_cov.mm_partner_x_block$upper.CL_untrans <- 1/ (m_votINV_cov.mm_partner_x_block$lower.CL / fact)
-write.csv(m_votINV_cov.mm_partner_x_block,"output_stats/LEALCO-BEH_votINV_lmm_marginal_partner_x_block.csv", row.names = FALSE)
+write.csv(m_votINV_cov.mm_partner_x_block,"output_stats/LEALCO-BEH_votINV_lmm_marginal_partner_x_block_covariate.csv", row.names = FALSE)
 
 # plot
 tt <- ggplot(m_votINV_cov.mm_partner_x_block, aes(y=emmean_untrans, x=block, color=partner_type)) + 
@@ -1199,7 +1221,7 @@ tt <- ggplot(m_votINV_cov.mm_partner_x_block, aes(y=emmean_untrans, x=block, col
   theme(axis.text=element_text(size=12), axis.title=element_text(size=16)) +
   ylim(0,1720)
 tt
-ggsave("output_figures/LEALCO-BEH_votINV_lmm_marginal_partner_x_block_pointplot.pdf", width=4 , height=3.5)
+ggsave("output_figures/LEALCO-BEH_votINV_lmm_marginal_partner_x_block_pointplot_covariate.pdf", width=4 , height=3.5)
 tt
 
 ```
@@ -1223,6 +1245,27 @@ print(summary(m_votINV_ess))
 sink()  # returns output to the console
 
 save_model_to_html(m_votINV_ess@model, 3, 'LEALCO-BEH_votINV_lmm_essential.html')
+```
+
+## LLM - nano
+
+```{r}
+# indicate the maximal effect strucutre (both fixed and random) that is motivated based on design & hypotheses
+f <- VOTinv_fact ~ partner_type * block +
+     (partner_type*block | subjID) +
+     (partner_type*block | target_label)
+
+# select the maximal model that still converges
+m_votINV_nano <- buildmer(f,data=votINV,buildmerControl=buildmerControl(direction='order',
+          args=list(control=lmerControl(optimizer='bobyqa'))))
+summary(m_votINV_nano)
+
+
+sink("output_stats/LEALCO-BEH_votINV_lmm_essential.txt")
+print(summary(m_votINV_nano))
+sink()  # returns output to the console
+
+save_model_to_html(m_votINV_nano@model, 3, 'LEALCO-BEH_votINV_lmm_nano.html')
 ```
 
 # == Entrainment analysis ==
