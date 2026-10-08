@@ -1340,7 +1340,6 @@ Also carry out the **percentage bend** **correlation** (Wilcox, 1994) and the **
 dat <- entrainment_data[, c("entrainment_ACC", "entrainment_VOTinv")]
 
 
-
 # Percentage-bend correlation (Wilcox, 1994)
 pb <- matrixCorr::pbcor(
   dat,
